@@ -11,7 +11,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SSocial.Configuration;
+using SSocial.Data;
 using SSocial.Models;
+using SSocial.Utils;
 
 namespace SSocial
 {
@@ -30,7 +32,7 @@ namespace SSocial
             services.AddCors();
             services.AddDbContext<ApplicationDbContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddIdentity<IdentityUser, IdentityRole>(opt => opt.SignIn.RequireConfirmedAccount = true)
+            services.AddIdentity<ApplicationUser, IdentityRole>(opt => opt.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             
             services.AddControllers();
@@ -56,6 +58,7 @@ namespace SSocial
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateLifetime = true,
+                    LifetimeValidator = TokenLifetimeValidator.Validate,
                     ClockSkew = TimeSpan.Zero
                 };
             });

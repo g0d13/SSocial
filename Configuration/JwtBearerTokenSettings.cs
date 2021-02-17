@@ -6,5 +6,6 @@ namespace SSocial.Configuration
         public string Audience { get; set; }
         public string Issuer { get; set; }
         public int ExpiryTimeInSeconds { get; set; }
+        public int RefreshTokenExpiryInDays { get; set; }
     }
 }
