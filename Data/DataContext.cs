@@ -9,7 +9,13 @@ namespace SSocial.Data
         public DataContext(DbContextOptions<DataContext> opt) : base(opt)
         {
         }
-        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IdentityUser>()
+                .ToTable("AspNetUsers", t => t.ExcludeFromMigrations());
+        }
+
         public DbSet<IdentityUser> Users { get; set; }
         public DbSet<Machine> Machines { get; set; }
 
