@@ -33,7 +33,7 @@ namespace SSocial.Data
                     NormalizedName = "ADMIN"
                 },
                 new IdentityRole {Name = "Supervisor", NormalizedName = "SUPERVISOR"},
-                new IdentityRole {Name = "Mechanic", NormalizedName = "SUPERVISOR"}
+                new IdentityRole {Name = "Mechanic", NormalizedName = "MECHANIC"}
 
             );
             modelBuilder.Entity<IdentityUserRole<string>>()

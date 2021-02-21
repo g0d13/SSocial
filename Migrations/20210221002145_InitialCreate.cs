@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace SSocial.Migrations
 {
-    public partial class IdentityDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -153,6 +153,52 @@ namespace SSocial.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RefreshToken",
+                columns: table => new
+                {
+                    RefreshTokenId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Token = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    ExpiryOn = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedByIp = table.Column<string>(type: "text", nullable: true),
+                    RevokedOn = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    RevokedByIp = table.Column<string>(type: "text", nullable: true),
+                    ApplicationUserId = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshToken", x => x.RefreshTokenId);
+                    table.ForeignKey(
+                        name: "FK_RefreshToken_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "2894ae86-3c7b-4429-8d4d-db637636aa00", "a4dc9cb1-4f64-4ef0-8cf5-26c13aae393d", "Admin", "ADMIN" },
+                    { "bafc373b-5b44-4e58-83d0-becafbb681f0", "b35f41e6-14d5-4ce8-97db-7ff67a4cb2f2", "Supervisor", "SUPERVISOR" },
+                    { "b2ff5c66-1cb3-4258-a93a-83b16ce01431", "7286ad79-d6c5-4fbd-a0c4-ea1a0220b966", "Mechanic", "MECHANIC" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "5246695f-aa58-4ddc-9c2b-1e9458a2c223", 0, "60a44c9f-4124-4b18-aed8-9e8344e7fca7", "admin@admin.com", false, false, null, null, null, "AQAAAAEAACcQAAAAEGrNx6dAelcBCOXpnHHGxs4IqMFwEcXLk1e79nXXVwD8BI7/XZuZ2odCefTGvn7N0g==", null, false, "40824b29-6849-429e-9783-4066d70eb9f7", false, "Admin" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "2894ae86-3c7b-4429-8d4d-db637636aa00", "5246695f-aa58-4ddc-9c2b-1e9458a2c223" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -189,6 +235,11 @@ namespace SSocial.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_ApplicationUserId",
+                table: "RefreshToken",
+                column: "ApplicationUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -207,6 +258,9 @@ namespace SSocial.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
