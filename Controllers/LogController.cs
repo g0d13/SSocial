@@ -45,7 +45,7 @@ namespace SSocial.Controllers
                 select new GetLogDto()
                 {
                     LogId = b.LogId,
-                    Machines = b.Machines.ToList().ConvertAll(e => _context.Machines.Find(e).MachineId),
+                    Machines = (b.Machines.Select(x => x.MachineId)).ToList(),
                     Mechanic = b.Mechanic.Id,
                     Name = b.Name
                 }).SingleAsync(e => e.LogId == id);
@@ -80,10 +80,8 @@ namespace SSocial.Controllers
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
 
             return NoContent();
@@ -94,12 +92,11 @@ namespace SSocial.Controllers
         [HttpPost]
         public async Task<ActionResult<CreateLogDto>> PostLog(CreateLogDto createLog)
         {
-            var list = _context.Users.ToList();
             var newLog = new Log
             {
                 Name = createLog.Name,
-                Machines = createLog.Machines.ToList().ConvertAll(e => _context.Machines.Find(e)),
-                Mechanic = _context.Users.FirstOrDefault(id => id.Id == createLog.Mechanic.ToString()),
+                Machines = createLog.Machines.Select(e => _context.Machines.Find(e)).ToList(),
+                Mechanic = _context.Users.FirstOrDefault(id => id.Id == createLog.Mechanic),
             };
             await _context.Logs.AddAsync(newLog);
             await _context.SaveChangesAsync();
