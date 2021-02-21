@@ -1,7 +1,6 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 
-namespace SSocial.Data
+namespace SSocial.Configuration
 {
     public class RefreshToken
     {

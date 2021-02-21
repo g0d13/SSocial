@@ -1,11 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SSocial.Data;
-using SSocial.Models;
 
 namespace SSocial.Utils
 {

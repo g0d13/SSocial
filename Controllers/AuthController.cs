@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SSocial.Configuration;
 using SSocial.Data;
-using SSocial.Models;
+using SSocial.Dtos;
 
 namespace SSocial.Controllers
 {
@@ -43,19 +43,19 @@ namespace SSocial.Controllers
 
         [HttpPost]
         [Route("Register")]
-        public async Task<IActionResult> Register([FromBody] UserDetails userDetails)
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUserDto)
         {
-            if (!ModelState.IsValid || userDetails == null)
+            if (!ModelState.IsValid || registerUserDto == null)
             {
                 return new BadRequestObjectResult(new { Message = "User Registration Failed" });
             }
 
             var identityUser = new ApplicationUser()
             {
-                UserName = userDetails.Username, 
-                Email = userDetails.Email
+                UserName = registerUserDto.Username, 
+                Email = registerUserDto.Email
             };
-            var result = await _userManager.CreateAsync(identityUser, userDetails.Password);
+            var result = await _userManager.CreateAsync(identityUser, registerUserDto.Password);
             if (!result.Succeeded)
             {
                 var dictionary = new ModelStateDictionary();
@@ -66,7 +66,7 @@ namespace SSocial.Controllers
 
                 return new BadRequestObjectResult(new { Message = "User Registration Failed", Errors = dictionary });
             }
-            var role = _roleManager.Roles.FirstOrDefault(e => e.Name == userDetails.Role);
+            var role = _roleManager.Roles.FirstOrDefault(e => e.Name == registerUserDto.Role);
             if (role == null)
             {
                 return new BadRequestObjectResult(new { Message = "Rol was not found" });
@@ -81,13 +81,13 @@ namespace SSocial.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginCredentials credentials)
+        public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
         {
             ApplicationUser identityUser;
 
             if (!ModelState.IsValid
-                || credentials == null
-                || (identityUser = await ValidateUser(credentials)) == null)
+                || userDto == null
+                || (identityUser = await ValidateUser(userDto)) == null)
             {
                 return new BadRequestObjectResult(new { Message = "Login failed" });
             }
@@ -182,12 +182,12 @@ namespace SSocial.Controllers
             return true;
         }
 
-        private async Task<ApplicationUser> ValidateUser(LoginCredentials credentials)
+        private async Task<ApplicationUser> ValidateUser(LoginUserDto userDto)
         {
-            var identityUser = await _userManager.FindByNameAsync(credentials.Username);
+            var identityUser = await _userManager.FindByNameAsync(userDto.Username);
             if (identityUser != null)
             {
-                var result = _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, credentials.Password);
+                var result = _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, userDto.Password);
                 return result == PasswordVerificationResult.Failed ? null : identityUser;
             }
 

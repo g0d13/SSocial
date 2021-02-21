@@ -13,7 +13,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SSocial.Configuration;
 using SSocial.Data;
-using SSocial.Models;
 
 namespace SSocial
 {

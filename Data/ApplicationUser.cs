@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
+using SSocial.Configuration;
 
 namespace SSocial.Data
 {
