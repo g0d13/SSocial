@@ -31,6 +31,9 @@ namespace SSocial
             services.AddCors();
             services.AddDbContext<ApplicationDbContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<DataContext>(opt => 
+                opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            
             services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
                 {
                     opt.SignIn.RequireConfirmedAccount = true;
