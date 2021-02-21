@@ -5,8 +5,7 @@ namespace SSocial.Data
 {
     public class RefreshToken
     {
-        [Key]
-        public int Id { get; set; }
+        public int RefreshTokenId { get; set; }
 
         public string Token { get; set; }
          

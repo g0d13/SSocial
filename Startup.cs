@@ -13,7 +13,6 @@ using Microsoft.OpenApi.Models;
 using SSocial.Configuration;
 using SSocial.Data;
 using SSocial.Models;
-using SSocial.Utils;
 
 namespace SSocial
 {
@@ -64,7 +63,6 @@ namespace SSocial
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateLifetime = true,
-                    LifetimeValidator = TokenLifetimeValidator.Validate,
                     ClockSkew = TimeSpan.Zero
                 };
             });
@@ -86,9 +84,8 @@ namespace SSocial
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
