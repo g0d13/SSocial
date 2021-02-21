@@ -22,6 +22,7 @@ namespace SSocial.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly JwtBearerTokenSettings _jwtBearerTokenSettings;

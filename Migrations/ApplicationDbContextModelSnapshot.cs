@@ -43,29 +43,6 @@ namespace SSocial.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "2894ae86-3c7b-4429-8d4d-db637636aa00",
-                            ConcurrencyStamp = "a4dc9cb1-4f64-4ef0-8cf5-26c13aae393d",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "bafc373b-5b44-4e58-83d0-becafbb681f0",
-                            ConcurrencyStamp = "b35f41e6-14d5-4ce8-97db-7ff67a4cb2f2",
-                            Name = "Supervisor",
-                            NormalizedName = "SUPERVISOR"
-                        },
-                        new
-                        {
-                            Id = "b2ff5c66-1cb3-4258-a93a-83b16ce01431",
-                            ConcurrencyStamp = "7286ad79-d6c5-4fbd-a0c4-ea1a0220b966",
-                            Name = "Mechanic",
-                            NormalizedName = "MECHANIC"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -151,13 +128,6 @@ namespace SSocial.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "5246695f-aa58-4ddc-9c2b-1e9458a2c223",
-                            RoleId = "2894ae86-3c7b-4429-8d4d-db637636aa00"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -241,22 +211,6 @@ namespace SSocial.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "5246695f-aa58-4ddc-9c2b-1e9458a2c223",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "60a44c9f-4124-4b18-aed8-9e8344e7fca7",
-                            Email = "admin@admin.com",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PasswordHash = "AQAAAAEAACcQAAAAEGrNx6dAelcBCOXpnHHGxs4IqMFwEcXLk1e79nXXVwD8BI7/XZuZ2odCefTGvn7N0g==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "40824b29-6849-429e-9783-4066d70eb9f7",
-                            TwoFactorEnabled = false,
-                            UserName = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("SSocial.Data.RefreshToken", b =>
