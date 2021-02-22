@@ -61,14 +61,22 @@ namespace SSocial.Controllers
         // PUT: api/Log/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLog(Guid id, Log log)
+        public async Task<IActionResult> PutLog(Guid id, CreateLogDto log)
         {
             if (id != log.LogId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(log).State = EntityState.Modified;
+            var newLog = new Log()
+            {
+                LogId = log.LogId,
+                Name = log.Name,
+                Mechanic = await _context.Users.FindAsync(log.Mechanic),
+                Machines = _context.Machines.Select(e => e).ToList()
+            };
+
+            _context.Entry(newLog).State = EntityState.Modified;
 
             try
             {
