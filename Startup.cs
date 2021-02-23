@@ -75,7 +75,17 @@ namespace SSocial
                     .RequireAuthenticatedUser()
                     .Build();
             });
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "SSocial", Version = "v1"}); });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "SSocial", Version = "v1"});
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
