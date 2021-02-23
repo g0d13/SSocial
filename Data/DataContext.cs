@@ -22,5 +22,9 @@ namespace SSocial.Data
         public DbSet<Log> Logs { get; set; }
         
         public DbSet<Record> Records { get; set; }
+        
+        public DbSet<SSocial.Models.Request> Request { get; set; }
+        
+        public DbSet<SSocial.Models.Repair> Repair { get; set; }
     }
 }
