@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SSocial.Data;
+using SSocial.Dtos;
 using SSocial.Models;
 
 namespace SSocial.Controllers
@@ -23,14 +24,23 @@ namespace SSocial.Controllers
 
         // GET: api/Repair
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Repair>>> GetRepair()
+        public async Task<ActionResult<IEnumerable<GetRepairDto>>> GetRepair()
         {
-            return await _context.Repair.ToListAsync();
+            return await _context.Repair.Select(e => new GetRepairDto()
+            {
+                Mechanic = Guid.Parse(e.Mechanic.Id),
+                Details = e.Details,
+                Severity = e.Severity,
+                ArrivalTime = e.ArrivalTime,
+                DepartureTime = e.DepartureTime,
+                IsFixed = e.IsFixed,
+                RepairId = e.RepairId
+            }).ToListAsync();
         }
 
         // GET: api/Repair/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Repair>> GetRepair(Guid id)
+        public async Task<ActionResult<GetRepairDto>> GetRepair(Guid id)
         {
             var repair = await _context.Repair.FindAsync(id);
 
@@ -39,18 +49,38 @@ namespace SSocial.Controllers
                 return NotFound();
             }
 
-            return repair;
+            return new GetRepairDto()
+            {
+                Mechanic = Guid.Parse(repair.Mechanic.Id),
+                Details = repair.Details,
+                Severity = repair.Severity,
+                ArrivalTime = repair.ArrivalTime,
+                DepartureTime = repair.DepartureTime,
+                IsFixed = repair.IsFixed,
+                RepairId = repair.RepairId
+            };
         }
 
         // PUT: api/Repair/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRepair(Guid id, Repair repair)
+        public async Task<IActionResult> PutRepair(Guid id, GetRepairDto repairDto)
         {
-            if (id != repair.RepairId)
+            if (id != repairDto.RepairId)
             {
                 return BadRequest();
             }
+
+            var repair = new Repair()
+            {
+                Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
+                Details = repairDto.Details,
+                Severity = repairDto.Severity,
+                ArrivalTime = repairDto.ArrivalTime,
+                DepartureTime = repairDto.DepartureTime,
+                IsFixed = repairDto.IsFixed,
+                RepairId = repairDto.RepairId
+            };
 
             _context.Entry(repair).State = EntityState.Modified;
 
@@ -76,12 +106,22 @@ namespace SSocial.Controllers
         // POST: api/Repair
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Repair>> PostRepair(Repair repair)
+        public async Task<ActionResult<GetRepairDto>> PostRepair(GetRepairDto repairDto)
         {
-            _context.Repair.Add(repair);
+            var repair = new Repair()
+            {
+                Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
+                Details = repairDto.Details,
+                Severity = repairDto.Severity,
+                ArrivalTime = repairDto.ArrivalTime,
+                DepartureTime = repairDto.DepartureTime,
+                IsFixed = repairDto.IsFixed,
+                RepairId = repairDto.RepairId
+            };
+            await _context.Repair.AddAsync(repair);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRepair", new { id = repair.RepairId }, repair);
+            return CreatedAtAction("GetRepair", new { id = repair.RepairId }, repairDto);
         }
 
         // DELETE: api/Repair/5
