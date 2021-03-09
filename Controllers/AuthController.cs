@@ -47,12 +47,12 @@ namespace SSocial.Controllers
         {
             if (!ModelState.IsValid || registerUserDto == null)
             {
-                return new BadRequestObjectResult(new { Message = "User Registration Failed" });
+                return new BadRequestObjectResult(new {Message = "User Registration Failed"});
             }
 
             var identityUser = new ApplicationUser()
             {
-                UserName = registerUserDto.Username, 
+                UserName = registerUserDto.Username,
                 Email = registerUserDto.Email
             };
             var result = await _userManager.CreateAsync(identityUser, registerUserDto.Password);
@@ -66,6 +66,7 @@ namespace SSocial.Controllers
 
                 return new BadRequestObjectResult(new { Message = "User Registration Failed", Errors = dictionary });
             }
+
             var role = _roleManager.Roles.FirstOrDefault(e => e.Name == registerUserDto.Role);
             if (role == null)
             {
@@ -81,6 +82,7 @@ namespace SSocial.Controllers
 
         [HttpPost]
         [Route("Login")]
+
         public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
         {
             ApplicationUser identityUser;
@@ -102,7 +104,7 @@ namespace SSocial.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("RefreshToken")]
-        public IActionResult RefreshToken()
+        public async Task<IActionResult> RefreshToken()
         {
             var token = HttpContext.Request.Cookies["refreshToken"];
             var identityUser = _dbContext.Users.Include(x => x.RefreshTokens)
@@ -118,10 +120,11 @@ namespace SSocial.Controllers
             if (HttpContext.Connection.RemoteIpAddress != null)
                 existingRefreshToken.RevokedByIp = HttpContext.Connection.RemoteIpAddress.ToString();
             existingRefreshToken.RevokedOn = DateTime.UtcNow;
-
+            
+            
             // Generate new tokens
             var newToken = GenerateTokens(identityUser);
-            return Ok(new { Token = newToken, Message = "Success" });
+            return Ok(new {Token = newToken, Message = "Success"});
         }
 
         [HttpPost]
@@ -131,11 +134,11 @@ namespace SSocial.Controllers
             // If user found, then revoke
             if (RevokeRefreshToken(token))
             {
-                return Ok(new { Message = "Success" });
+                return Ok(new {Message = "Success"});
             }
 
             // Otherwise, return error
-            return new BadRequestObjectResult(new { Message = "Failed" });
+            return new BadRequestObjectResult(new {Message = "Failed"});
         }
 
         [HttpPost]
@@ -144,7 +147,7 @@ namespace SSocial.Controllers
         {
             // Revoke Refresh Token 
             RevokeRefreshToken();
-            return Ok(new { Token = "", Message = "Logged Out" });
+            return Ok(new {Token = "", Message = "Logged Out"});
         }
 
         private RefreshToken GetValidRefreshToken(string token, ApplicationUser identityUser)
@@ -185,13 +188,12 @@ namespace SSocial.Controllers
         private async Task<ApplicationUser> ValidateUser(LoginUserDto userDto)
         {
             var identityUser = await _userManager.FindByNameAsync(userDto.Username);
-            if (identityUser != null)
-            {
-                var result = _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, userDto.Password);
-                return result == PasswordVerificationResult.Failed ? null : identityUser;
-            }
+            if (identityUser == null) return null;
+            var result =
+                _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash,
+                    userDto.Password);
+            return result == PasswordVerificationResult.Failed ? null : identityUser;
 
-            return null;
         }
 
         private string GenerateTokens(ApplicationUser identityUser)
@@ -228,7 +230,7 @@ namespace SSocial.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtBearerTokenSettings.SecretKey);
-
+            var role = identityUser.Role;
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -239,7 +241,8 @@ namespace SSocial.Controllers
                 }),
 
                 Expires = DateTime.UtcNow.AddSeconds(_jwtBearerTokenSettings.ExpiryTimeInSeconds),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials =
+                    new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Audience = _jwtBearerTokenSettings.Audience,
                 Issuer = _jwtBearerTokenSettings.Issuer,
             };
