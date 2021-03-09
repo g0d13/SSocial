@@ -18,6 +18,7 @@ namespace SSocial
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -28,12 +29,18 @@ namespace SSocial
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://localhost:8080").AllowCredentials().AllowAnyHeader();
+                });
+            });
             services.AddDbContext<ApplicationDbContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDbContext<DataContext>(opt => 
+            services.AddDbContext<DataContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-            
+
             services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
                 {
                     opt.SignIn.RequireConfirmedAccount = true;
@@ -42,7 +49,7 @@ namespace SSocial
                 })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            
+
             services.AddControllers();
 
             var jwtSection = Configuration.GetSection("JwtBearerTokenSettings");
@@ -80,7 +87,8 @@ namespace SSocial
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SSocial", Version = "v1"});
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Description =
+                        "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey
@@ -91,21 +99,20 @@ namespace SSocial
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors(prop => prop.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SSocial v1"));
             }
+            app.UseCors();
 
             app.UseHttpsRedirection();
-
+            
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
