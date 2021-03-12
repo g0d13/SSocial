@@ -70,7 +70,7 @@ namespace SSocial.Controllers
             var role = _roleManager.Roles.FirstOrDefault(e => e.Name == registerUserDto.Role);
             if (role == null)
             {
-                return new BadRequestObjectResult(new { Message = "Rol was not found" });
+                return new BadRequestObjectResult(new { Message = "Role was not found" });
             }
             
             //Get the created user from the database
@@ -91,7 +91,7 @@ namespace SSocial.Controllers
                 || userDto == null
                 || (identityUser = await ValidateUser(userDto)) == null)
             {
-                return new BadRequestObjectResult(new { Message = "Login failed" });
+                return new BadRequestObjectResult(new { Message = "Usuario y/o contrasena incorrecto" });
             }
             
             var role = await _userManager.GetRolesAsync(identityUser);
