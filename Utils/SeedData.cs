@@ -26,6 +26,7 @@ namespace SSocial.Utils
 
             const string userName = "Admin";
             const string userPwd = "Admin1";
+            const string userEmail = "admin@admin.com";
             
             var user = await userManager.FindByNameAsync(userName);
 
@@ -36,6 +37,7 @@ namespace SSocial.Utils
             {
                 UserName = userName,
                 EmailConfirmed = true,
+                Email = userEmail,
             };
             
             await userManager.CreateAsync(user, userPwd);
