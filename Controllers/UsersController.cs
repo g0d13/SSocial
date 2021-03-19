@@ -16,10 +16,10 @@ namespace SSocial.Controllers
     {
         private readonly DataContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
 
-        public UsersController(DataContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UsersController(DataContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             _context = context;
             _roleManager = roleManager;
@@ -34,14 +34,15 @@ namespace SSocial.Controllers
                 {
                     Email = c.Email,
                     Role = Role.Supervisor,
-                    Name = c.UserName,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
                     UserId = c.Id
                 }).Concat(_userManager.GetUsersInRoleAsync(Role.Mechanic).Result
                     .Select(c => new UserDetails
                 {
                     Email = c.Email,
                     Role = Role.Mechanic,
-                    Name = c.UserName,
+                    FirstName = c.FirstName,
                     UserId = c.Id
                 }));
 
@@ -60,7 +61,7 @@ namespace SSocial.Controllers
             {
                 Email = user.Email,
                 Role = role,
-                Name = user.UserName,
+                FirstName = user.FirstName,
                 UserId = user.Id
             };
         }
@@ -76,7 +77,7 @@ namespace SSocial.Controllers
             {
                 Email = c.Email,
                 Role = role.Name,
-                Name = c.UserName,
+                FirstName = c.FirstName,
                 UserId = c.Id
             }).ToList();
         }
