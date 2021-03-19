@@ -19,6 +19,21 @@ namespace SSocial.Migrations.Data
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+            modelBuilder.Entity("CategoryMachine", b =>
+                {
+                    b.Property<Guid>("CategoriesCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MachinesMachineId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CategoriesCategoryId", "MachinesMachineId");
+
+                    b.HasIndex("MachinesMachineId");
+
+                    b.ToTable("CategoryMachine");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
@@ -71,14 +86,124 @@ namespace SSocial.Migrations.Data
                     b.ToTable("AspNetUsers", t => t.ExcludeFromMigrations());
                 });
 
+            modelBuilder.Entity("SSocial.Configuration.RefreshToken", b =>
+                {
+                    b.Property<Guid>("RefreshTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ApplicationUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("ExpiryOn")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("RevokedByIp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RevokedOn")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RefreshTokenId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("RefreshToken", t => t.ExcludeFromMigrations());
+                });
+
+            modelBuilder.Entity("SSocial.Data.ApplicationUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ApplicationUser");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Category", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("SSocial.Models.Log", b =>
                 {
                     b.Property<Guid>("LogId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("MechanicId")
+                    b.Property<string>("Details")
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("MechanicId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -161,8 +286,8 @@ namespace SSocial.Migrations.Data
                     b.Property<bool>("IsFixed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("MechanicId")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("MechanicId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Severity")
                         .HasColumnType("integer");
@@ -192,8 +317,8 @@ namespace SSocial.Migrations.Data
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
-                    b.Property<string>("SupervisorId")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("SupervisorId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("RequestId");
 
@@ -202,9 +327,31 @@ namespace SSocial.Migrations.Data
                     b.ToTable("Request");
                 });
 
+            modelBuilder.Entity("CategoryMachine", b =>
+                {
+                    b.HasOne("SSocial.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SSocial.Models.Machine", null)
+                        .WithMany()
+                        .HasForeignKey("MachinesMachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SSocial.Configuration.RefreshToken", b =>
+                {
+                    b.HasOne("SSocial.Data.ApplicationUser", null)
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
             modelBuilder.Entity("SSocial.Models.Log", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Mechanic")
+                    b.HasOne("SSocial.Data.ApplicationUser", "Mechanic")
                         .WithMany()
                         .HasForeignKey("MechanicId");
 
@@ -249,7 +396,7 @@ namespace SSocial.Migrations.Data
 
             modelBuilder.Entity("SSocial.Models.Repair", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Mechanic")
+                    b.HasOne("SSocial.Data.ApplicationUser", "Mechanic")
                         .WithMany()
                         .HasForeignKey("MechanicId");
 
@@ -258,11 +405,16 @@ namespace SSocial.Migrations.Data
 
             modelBuilder.Entity("SSocial.Models.Request", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Supervisor")
+                    b.HasOne("SSocial.Data.ApplicationUser", "Supervisor")
                         .WithMany()
                         .HasForeignKey("SupervisorId");
 
                     b.Navigation("Supervisor");
+                });
+
+            modelBuilder.Entity("SSocial.Data.ApplicationUser", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("SSocial.Models.Log", b =>
