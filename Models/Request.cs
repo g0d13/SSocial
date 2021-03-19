@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Identity;
+using SSocial.Data;
 using SSocial.Utils;
 
 namespace SSocial.Models
@@ -9,8 +10,9 @@ namespace SSocial.Models
         public Guid RequestId { get; set; }
         public string Description { get; set; }
         public Scale Priority { get; set; }
-        public IdentityUser Supervisor { get; set; }
+        public ApplicationUser Supervisor { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime EditedAt { get; set; }
     }
+    
 }

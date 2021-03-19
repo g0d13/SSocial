@@ -18,7 +18,7 @@ namespace SSocial.Utils
         {
             var scope = host.Services.CreateScope();
             
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var appContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             
@@ -41,10 +41,9 @@ namespace SSocial.Utils
             };
             
             await userManager.CreateAsync(user, userPwd);
-            
-            await roleManager.CreateAsync(new IdentityRole(Role.Admin));
-            await roleManager.CreateAsync(new IdentityRole(Role.Mechanic));
-            await roleManager.CreateAsync(new IdentityRole(Role.Supervisor));
+            await roleManager.CreateAsync(new ApplicationRole(Role.Admin));
+            await roleManager.CreateAsync(new ApplicationRole(Role.Mechanic));
+            await roleManager.CreateAsync(new ApplicationRole(Role.Supervisor));
 
             await userManager.AddToRoleAsync(user, Role.Admin);
         }

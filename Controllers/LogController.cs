@@ -16,10 +16,12 @@ namespace SSocial.Controllers
     public class LogController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LogController(DataContext context)
+        public LogController(DataContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Log

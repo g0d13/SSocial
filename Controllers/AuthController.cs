@@ -28,12 +28,12 @@ namespace SSocial.Controllers
         private readonly JwtBearerTokenSettings _jwtBearerTokenSettings;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _dbContext;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
         public AuthController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, 
             UserManager<ApplicationUser> userManager, 
             ApplicationDbContext dbContext,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<ApplicationRole> roleManager)
         {
             this._jwtBearerTokenSettings = jwtTokenOptions.Value;
             this._userManager = userManager;
@@ -74,7 +74,7 @@ namespace SSocial.Controllers
             }
             
             //Get the created user from the database
-            var user = await _userManager.FindByIdAsync(identityUser.Id);
+            var user = await _userManager.FindByIdAsync(identityUser.Id.ToString());
             await _userManager.AddToRoleAsync(user, role.Name);
 
             return Ok(new { Message = "User Registration Successful" });
@@ -104,7 +104,7 @@ namespace SSocial.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("RefreshToken")]
-        public async Task<IActionResult> RefreshToken()
+        public IActionResult RefreshToken()
         {
             var token = HttpContext.Request.Cookies["refreshToken"];
             var identityUser = _dbContext.Users.Include(x => x.RefreshTokens)
@@ -230,7 +230,6 @@ namespace SSocial.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtBearerTokenSettings.SecretKey);
-            var role = identityUser.Role;
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -251,7 +250,7 @@ namespace SSocial.Controllers
             return tokenHandler.WriteToken(token);
         }
 
-        private RefreshToken GenerateRefreshToken(string ipAddress, string userId)
+        private RefreshToken GenerateRefreshToken(string ipAddress, Guid userId)
         {
             using var rngCryptoServiceProvider = new RNGCryptoServiceProvider();
             var randomBytes = new byte[64];
