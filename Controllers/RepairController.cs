@@ -28,7 +28,7 @@ namespace SSocial.Controllers
         {
             return await _context.Repair.Select(e => new GetRepairDto()
             {
-                Mechanic = Guid.Parse(e.Mechanic.Id),
+                Mechanic = e.Mechanic.Id,
                 Details = e.Details,
                 Severity = e.Severity,
                 ArrivalTime = e.ArrivalTime,
@@ -51,7 +51,7 @@ namespace SSocial.Controllers
 
             return new GetRepairDto()
             {
-                Mechanic = Guid.Parse(repair.Mechanic.Id),
+                Mechanic = repair.Mechanic.Id,
                 Details = repair.Details,
                 Severity = repair.Severity,
                 ArrivalTime = repair.ArrivalTime,
@@ -73,7 +73,8 @@ namespace SSocial.Controllers
 
             var repair = new Repair()
             {
-                Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
+                //TODO: Finalize this
+                // Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
                 Details = repairDto.Details,
                 Severity = repairDto.Severity,
                 ArrivalTime = repairDto.ArrivalTime,
@@ -110,7 +111,8 @@ namespace SSocial.Controllers
         {
             var repair = new Repair()
             {
-                Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
+                //TODO: finalize
+                // Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
                 Details = repairDto.Details,
                 Severity = repairDto.Severity,
                 ArrivalTime = repairDto.ArrivalTime,

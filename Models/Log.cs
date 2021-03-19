@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
+using SSocial.Data;
 
 namespace SSocial.Models
 {
@@ -10,8 +11,10 @@ namespace SSocial.Models
 
         public string Name { get; set; }
         
+        public string Details { get; set; }
+        
         public ICollection<Machine> Machines { get; set; }
         
-        public IdentityUser Mechanic { get; set; }
+        public ApplicationUser Mechanic { get; set; }
     }
 }

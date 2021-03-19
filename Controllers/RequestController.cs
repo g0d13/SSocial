@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SSocial.Data;
+using SSocial.Dtos;
 using SSocial.Models;
 
 namespace SSocial.Controllers
@@ -23,14 +24,23 @@ namespace SSocial.Controllers
 
         // GET: api/Request
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Request>>> GetRequest()
+        public async Task<ActionResult<IEnumerable<RequestDto>>> GetRequest()
         {
-            return await _context.Request.ToListAsync();
+            return await _context.Request.Select(c => new RequestDto
+            {
+                Description = c.Description,
+                Priority = c.Priority,
+                //TODO: Finalize this
+                // Supervisor = c.Supervisor.Id,
+                CreatedAt = c.CreatedAt,
+                EditedAt = c.EditedAt,
+                RequestId = c.RequestId
+            }).ToListAsync();
         }
 
         // GET: api/Request/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Request>> GetRequest(Guid id)
+        public async Task<ActionResult<RequestDto>> GetRequest(Guid id)
         {
             var request = await _context.Request.FindAsync(id);
 
@@ -39,20 +49,40 @@ namespace SSocial.Controllers
                 return NotFound();
             }
 
-            return request;
+            return new RequestDto
+            {
+                Description = request.Description,
+                Priority = request.Priority,
+                //TODO: finzalize
+                // Supervisor = request.Supervisor.Id,
+                CreatedAt = request.CreatedAt,
+                EditedAt = request.EditedAt,
+                RequestId = request.RequestId
+            };
         }
 
         // PUT: api/Request/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRequest(Guid id, Request request)
+        public async Task<IActionResult> PutRequest(Guid id, RequestDto request)
         {
             if (id != request.RequestId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(request).State = EntityState.Modified;
+            var saveRequest = new Request
+            {
+                Description = request.Description,
+                Priority = request.Priority,
+                //TODO: finalize
+                // Supervisor = await _context.Users.FindAsync(request.Supervisor),
+                CreatedAt = request.CreatedAt,
+                EditedAt = request.EditedAt,
+                RequestId = request.RequestId
+            };
+
+            _context.Entry(saveRequest).State = EntityState.Modified;
 
             try
             {
@@ -64,10 +94,7 @@ namespace SSocial.Controllers
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -76,12 +103,21 @@ namespace SSocial.Controllers
         // POST: api/Request
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Request>> PostRequest(Request request)
+        public async Task<ActionResult<RequestDto>> PostRequest(RequestDto request)
         {
-            _context.Request.Add(request);
+            var saveRequest = new Request
+            {
+                Description = request.Description,
+                Priority = request.Priority,
+                // TODO: finalize
+                // Supervisor = await _context.Users.FindAsync(request.Supervisor),
+                CreatedAt = request.CreatedAt,
+                EditedAt = request.EditedAt,
+            };
+            _context.Request.Add(saveRequest);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRequest", new { id = request.RequestId }, request);
+            return CreatedAtAction("GetRequest", new { id = saveRequest.RequestId }, saveRequest);
         }
 
         // DELETE: api/Request/5

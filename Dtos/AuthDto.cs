@@ -11,9 +11,12 @@ namespace SSocial.Dtos
         public string Password { get; set; }
     }
 
-    public class UserDetails : RegisterUserDto
+    public class UserDetails 
     {
         public Guid UserId { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string Role { get; set; }
     }
     
     public class RegisterUserDto

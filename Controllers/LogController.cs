@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SSocial.Data;
@@ -74,7 +74,8 @@ namespace SSocial.Controllers
             {
                 LogId = log.LogId,
                 Name = log.Name,
-                Mechanic = await _context.Users.FindAsync(log.Mechanic),
+                // Mechanic = await _context.Users.FindAsync(log.Mechanic.ToString()),
+                //TODO: UPDATE THis
                 Machines = _context.Machines.Select(e => e).ToList()
             };
 
@@ -102,11 +103,13 @@ namespace SSocial.Controllers
         [HttpPost]
         public async Task<ActionResult<CreateLogDto>> PostLog(CreateLogDto createLog)
         {
+            var user = await _userManager.FindByIdAsync(createLog.Mechanic.ToString());
             var newLog = new Log
             {
+                LogId = Guid.NewGuid(),
                 Name = createLog.Name,
                 Machines = createLog.Machines.Select(e => _context.Machines.Find(e)).ToList(),
-                Mechanic = _context.Users.FirstOrDefault(id => id.Id == createLog.Mechanic),
+                Mechanic = user
             };
             await _context.Logs.AddAsync(newLog);
             await _context.SaveChangesAsync();

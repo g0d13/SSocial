@@ -25,7 +25,6 @@ namespace SSocial.Controllers
 
         // GET: api/Machine
         [HttpGet]
-        [Authorize(Roles = "Mechanic")]
         public ActionResult<IEnumerable<GetMachineDto>> GetMachines()
         {
             var machines = _context.Machines.Select(e => new GetMachineDto
@@ -68,7 +67,7 @@ namespace SSocial.Controllers
             {
                 return BadRequest();
             }
-
+            //TODO: Update this
             _context.Entry(machine).State = EntityState.Modified;
 
             try

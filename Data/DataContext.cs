@@ -1,5 +1,7 @@
+using System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SSocial.Configuration;
 using SSocial.Models;
 
 namespace SSocial.Data
@@ -9,22 +11,23 @@ namespace SSocial.Data
         public DataContext(DbContextOptions<DataContext> opt) : base(opt)
         {
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IdentityUser>()
                 .ToTable("AspNetUsers", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<RefreshToken>()
+                .ToTable("RefreshToken", t => t.ExcludeFromMigrations());
         }
-
-        public DbSet<IdentityUser> Users { get; set; }
+        
         public DbSet<Machine> Machines { get; set; }
-
+        
+        public DbSet<Category> Categories { get; set; }
         public DbSet<Log> Logs { get; set; }
         
         public DbSet<Record> Records { get; set; }
         
-        public DbSet<SSocial.Models.Request> Request { get; set; }
+        public DbSet<Request> Request { get; set; }
         
-        public DbSet<SSocial.Models.Repair> Repair { get; set; }
+        public DbSet<Repair> Repair { get; set; }
     }
 }
