@@ -12,6 +12,7 @@ namespace SSocial.Migrations.Data
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
                     Role = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "text", nullable: true),
                     NormalizedUserName = table.Column<string>(type: "text", nullable: true),

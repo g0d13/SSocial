@@ -52,8 +52,10 @@ namespace SSocial.Controllers
 
             var identityUser = new ApplicationUser()
             {
-                UserName = registerUserDto.Username,
-                Email = registerUserDto.Email
+                FirstName = registerUserDto.FirstName,
+                LastName = registerUserDto.LastName,
+                Email = registerUserDto.Email,
+                UserName = registerUserDto.Email
             };
             var result = await _userManager.CreateAsync(identityUser, registerUserDto.Password);
             if (!result.Succeeded)
@@ -93,7 +95,6 @@ namespace SSocial.Controllers
             {
                 return new BadRequestObjectResult(new { Message = "Usuario y/o contrasena incorrecto" });
             }
-            
             var role = await _userManager.GetRolesAsync(identityUser);
             identityUser.Role = role[0];
 
@@ -187,7 +188,7 @@ namespace SSocial.Controllers
 
         private async Task<ApplicationUser> ValidateUser(LoginUserDto userDto)
         {
-            var identityUser = await _userManager.FindByNameAsync(userDto.Username);
+            var identityUser = await _userManager.FindByEmailAsync(userDto.Email);
             if (identityUser == null) return null;
             var result =
                 _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash,
@@ -234,7 +235,6 @@ namespace SSocial.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, identityUser.UserName),
                     new Claim(ClaimTypes.Email, identityUser.Email),
                     new Claim(ClaimTypes.Role, identityUser.Role)
                 }),

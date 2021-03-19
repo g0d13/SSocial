@@ -10,7 +10,8 @@ namespace SSocial.Data
     public class ApplicationUser : IdentityUser<Guid>
     {
         public List<RefreshToken> RefreshTokens { get; set; }
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         
         public string Role { get; set; }
     }

@@ -10,7 +10,7 @@ using SSocial.Data;
 namespace SSocial.Migrations.Data
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210319221138_UserDbModels")]
+    [Migration("20210319225436_UserDbModels")]
     partial class UserDbModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -148,6 +148,9 @@ namespace SSocial.Migrations.Data
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasColumnType("text");

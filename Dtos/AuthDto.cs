@@ -6,7 +6,7 @@ namespace SSocial.Dtos
     public class LoginUserDto
     {
         [Required]
-        public string Username { get; set; }
+        public string Email { get; set; }
         [Required]
         public string Password { get; set; }
     }
@@ -14,7 +14,7 @@ namespace SSocial.Dtos
     public class UserDetails 
     {
         public Guid UserId { get; set; }
-        public string Username { get; set; }
+        public string Name { get; set; }
         public string Email { get; set; }
         public string Role { get; set; }
     }
@@ -22,7 +22,8 @@ namespace SSocial.Dtos
     public class RegisterUserDto
     {
         [Required]
-        public string Username { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         [Required]
         public string Password { get; set; }
         [Required]

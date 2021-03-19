@@ -147,6 +147,9 @@ namespace SSocial.Migrations.Data
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
                     b.Property<string>("NormalizedEmail")
                         .HasColumnType("text");
 

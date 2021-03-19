@@ -34,14 +34,14 @@ namespace SSocial.Controllers
                 {
                     Email = c.Email,
                     Role = Role.Supervisor,
-                    Username = c.UserName,
+                    Name = c.UserName,
                     UserId = c.Id
                 }).Concat(_userManager.GetUsersInRoleAsync(Role.Mechanic).Result
                     .Select(c => new UserDetails
                 {
                     Email = c.Email,
                     Role = Role.Mechanic,
-                    Username = c.UserName,
+                    Name = c.UserName,
                     UserId = c.Id
                 }));
 
@@ -60,7 +60,7 @@ namespace SSocial.Controllers
             {
                 Email = user.Email,
                 Role = role,
-                Username = user.UserName,
+                Name = user.UserName,
                 UserId = user.Id
             };
         }
@@ -76,7 +76,7 @@ namespace SSocial.Controllers
             {
                 Email = c.Email,
                 Role = role.Name,
-                Username = c.UserName,
+                Name = c.UserName,
                 UserId = c.Id
             }).ToList();
         }
