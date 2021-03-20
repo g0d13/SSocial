@@ -7,6 +7,8 @@ namespace SSocial.Dtos
     {
         public Guid LogId { get; set; }
         public string Name { get; set; }
+        
+        public string Details { get; set; }
         public ICollection<Guid> Machines { get; set; }
         public Guid Mechanic { get; set; }
     }
