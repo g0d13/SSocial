@@ -15,9 +15,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class RequestController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public RequestController(DataContext context)
+        public RequestController(ApplicationDbContext context)
         {
             _context = context;
         }

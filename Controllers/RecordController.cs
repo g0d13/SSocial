@@ -13,9 +13,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class RecordController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public RecordController(DataContext context)
+        public RecordController(ApplicationDbContext context)
         {
             _context = context;
         }

@@ -15,9 +15,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class RepairController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public RepairController(DataContext context)
+        public RepairController(ApplicationDbContext context)
         {
             _context = context;
         }

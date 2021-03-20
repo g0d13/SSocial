@@ -15,6 +15,7 @@ namespace SSocial.Models
         
         public ICollection<Machine> Machines { get; set; }
         
-        public ApplicationUser Mechanic { get; set; }
+        public Guid MechanicId { get; set; }
+        public virtual ApplicationUser Mechanic { get; set; }
     }
 }

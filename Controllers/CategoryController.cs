@@ -17,9 +17,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public CategoryController(DataContext context, IMapper mapper)
+        public CategoryController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

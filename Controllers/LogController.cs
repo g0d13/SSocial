@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,36 +17,35 @@ namespace SSocial.Controllers
     [ApiController]
     public class LogController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public LogController(DataContext context, UserManager<ApplicationUser> userManager)
+        public LogController(ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         // GET: api/Log
         [HttpGet]
-        public ActionResult<IEnumerable<GetLogDto>> GetLogs()
+        public async Task<ActionResult<IEnumerable<LogDto>>> GetLogs()
         {
-            var logs = (from l in _context.Logs
-                select new GetLogDto()
-                {
-                    LogId = l.LogId,
-                    Machines = (l.Machines.Select(x => x.MachineId)).ToList(),
-                    Mechanic = l.Mechanic.Id,
-                    Name = l.Name
-                }).ToList();
-            return logs;
+            var logMapper = await _context.Logs
+                .ProjectTo<LogDto>(_mapper.ConfigurationProvider).ToListAsync();
+
+            return logMapper;
         }
 
         // GET: api/Log/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetLogDto>> GetLog(Guid id)
+        public async Task<ActionResult<LogDto>> GetLog(Guid id)
         {
             var log = await (from b in _context.Logs
-                select new GetLogDto()
+                select new LogDto()
                 {
                     LogId = b.LogId,
                     Machines = (b.Machines.Select(x => x.MachineId)).ToList(),
@@ -63,7 +64,7 @@ namespace SSocial.Controllers
         // PUT: api/Log/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLog(Guid id, CreateLogDto log)
+        public async Task<IActionResult> PutLog(Guid id, LogDto log)
         {
             if (id != log.LogId)
             {
@@ -101,12 +102,12 @@ namespace SSocial.Controllers
         // POST: api/Log
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CreateLogDto>> PostLog(CreateLogDto createLog)
+        public async Task<ActionResult<LogDto>> PostLog(LogDto createLog)
         {
             var user = await _userManager.FindByIdAsync(createLog.Mechanic.ToString());
+            
             var newLog = new Log
             {
-                LogId = Guid.NewGuid(),
                 Name = createLog.Name,
                 Machines = createLog.Machines.Select(e => _context.Machines.Find(e)).ToList(),
                 Mechanic = user

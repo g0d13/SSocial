@@ -10,7 +10,7 @@ using SSocial.Data;
 namespace SSocial.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210319225431_InitialCreate")]
+    [Migration("20210320125323_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,6 +20,21 @@ namespace SSocial.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+            modelBuilder.Entity("CategoryMachine", b =>
+                {
+                    b.Property<Guid>("CategoriesCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MachinesMachineId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CategoriesCategoryId", "MachinesMachineId");
+
+                    b.HasIndex("MachinesMachineId");
+
+                    b.ToTable("CategoryMachine");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
@@ -206,14 +221,17 @@ namespace SSocial.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -252,6 +270,169 @@ namespace SSocial.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Category", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Log", b =>
+                {
+                    b.Property<Guid>("LogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MechanicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("LogId");
+
+                    b.HasIndex("MechanicId");
+
+                    b.ToTable("Logs");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Machine", b =>
+                {
+                    b.Property<Guid>("MachineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Brand")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("LogId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Model")
+                        .HasColumnType("text");
+
+                    b.HasKey("MachineId");
+
+                    b.HasIndex("LogId");
+
+                    b.ToTable("Machines");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Record", b =>
+                {
+                    b.Property<Guid>("RecordId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("LogId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("MachineId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RepairId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RecordId");
+
+                    b.HasIndex("LogId");
+
+                    b.HasIndex("MachineId");
+
+                    b.HasIndex("RepairId");
+
+                    b.HasIndex("RequestId");
+
+                    b.ToTable("Records");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Repair", b =>
+                {
+                    b.Property<Guid>("RepairId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ArrivalTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DepartureTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsFixed")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("MechanicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Severity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RepairId");
+
+                    b.HasIndex("MechanicId");
+
+                    b.ToTable("Repair");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Request", b =>
+                {
+                    b.Property<Guid>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EditedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("SupervisorId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("SupervisorId");
+
+                    b.ToTable("Request");
+                });
+
+            modelBuilder.Entity("CategoryMachine", b =>
+                {
+                    b.HasOne("SSocial.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SSocial.Models.Machine", null)
+                        .WithMany()
+                        .HasForeignKey("MachinesMachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -312,9 +493,79 @@ namespace SSocial.Migrations
                         .HasForeignKey("ApplicationUserId");
                 });
 
+            modelBuilder.Entity("SSocial.Models.Log", b =>
+                {
+                    b.HasOne("SSocial.Data.ApplicationUser", "Mechanic")
+                        .WithMany()
+                        .HasForeignKey("MechanicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mechanic");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Machine", b =>
+                {
+                    b.HasOne("SSocial.Models.Log", "Log")
+                        .WithMany("Machines")
+                        .HasForeignKey("LogId");
+
+                    b.Navigation("Log");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Record", b =>
+                {
+                    b.HasOne("SSocial.Models.Log", "Log")
+                        .WithMany()
+                        .HasForeignKey("LogId");
+
+                    b.HasOne("SSocial.Models.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId");
+
+                    b.HasOne("SSocial.Models.Repair", "Repair")
+                        .WithMany()
+                        .HasForeignKey("RepairId");
+
+                    b.HasOne("SSocial.Models.Request", "Request")
+                        .WithMany()
+                        .HasForeignKey("RequestId");
+
+                    b.Navigation("Log");
+
+                    b.Navigation("Machine");
+
+                    b.Navigation("Repair");
+
+                    b.Navigation("Request");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Repair", b =>
+                {
+                    b.HasOne("SSocial.Data.ApplicationUser", "Mechanic")
+                        .WithMany()
+                        .HasForeignKey("MechanicId");
+
+                    b.Navigation("Mechanic");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Request", b =>
+                {
+                    b.HasOne("SSocial.Data.ApplicationUser", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId");
+
+                    b.Navigation("Supervisor");
+                });
+
             modelBuilder.Entity("SSocial.Data.ApplicationUser", b =>
                 {
                     b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("SSocial.Models.Log", b =>
+                {
+                    b.Navigation("Machines");
                 });
 #pragma warning restore 612, 618
         }

@@ -16,9 +16,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class MachineController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public MachineController(DataContext context)
+        public MachineController(ApplicationDbContext context)
         {
             _context = context;
         }
