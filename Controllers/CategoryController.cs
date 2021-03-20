@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,44 +18,36 @@ namespace SSocial.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly DataContext _context;
-
-        public CategoryController(DataContext context)
+        private readonly IMapper _mapper;
+        public CategoryController(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Category
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
         {
-            return await _context.Categories.Select(c =>
-                new CategoryDto()
-                {
-                    Machines = c.Machines.Select(e => e.MachineId).ToList(),
-                    Name = c.Name,
-                    CategoryId = c.CategoryId
-                }).ToListAsync();
+            var categoryMapper = await _context.Categories
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider).ToListAsync();
+
+            return categoryMapper;
         }
 
         // GET: api/Category/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategory(Guid id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var categoryMapper = await _context.Categories.Where(e => e.CategoryId == id)
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
-            if (category == null)
+            if (categoryMapper == null)
             {
                 return NotFound();
             }
 
-            var categoryDto = new CategoryDto()
-            {
-                Machines = category.Machines.Select(c => c.MachineId).ToList(),
-                Name = category.Name,
-                CategoryId = category.CategoryId
-            };
-
-            return categoryDto;
+            return categoryMapper;
         }
 
         // PUT: api/Category/5
@@ -65,17 +59,10 @@ namespace SSocial.Controllers
             {
                 return BadRequest();
             }
+            var categoryMapped = CreateCategory(category);
 
-            var machines =
-                category.Machines.Select(e => _context.Machines.Find(e)).ToList();
-            var categoryDb = new Category()
-            {
-                CategoryId = category.CategoryId,
-                Machines = machines,
-                Name = category.Name
-            };
 
-            _context.Entry(categoryDb).State = EntityState.Modified;
+            _context.Entry(categoryMapped).State = EntityState.Modified;
 
             try
             {
@@ -98,16 +85,11 @@ namespace SSocial.Controllers
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto category)
         {
-            var categoryDb = new Category()
-            {
-                Machines = category.Machines?.Select(e => _context.Machines.Find(e)).ToList(),
-                Name = category.Name,
-                CategoryId = category.CategoryId
-            };
-            await _context.Categories.AddAsync(categoryDb);
+            var categoryMapped = CreateCategory(category);
+            await _context.Categories.AddAsync(categoryMapped);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = categoryDb.CategoryId }, category);
+            return CreatedAtAction("GetCategory", new { id = categoryMapped.CategoryId }, category);
         }
 
         // DELETE: api/Category/5
@@ -129,6 +111,13 @@ namespace SSocial.Controllers
         private bool CategoryExists(Guid id)
         {
             return _context.Categories.Any(e => e.CategoryId == id);
+        }
+
+        private Category CreateCategory(CategoryDto category)
+        {
+            var categoryMapped = _mapper.Map<Category>(category);
+            categoryMapped.Machines = category.Machines?.Select(e => _context.Machines.Find(e)).ToList();
+            return categoryMapped;
         }
     }
 }
