@@ -25,30 +25,38 @@ namespace SSocial.Controllers
 
         // GET: api/Machine
         [HttpGet]
-        public ActionResult<IEnumerable<GetMachineDto>> GetMachines()
+        public ActionResult<IEnumerable<MachineDto>> GetMachines()
         {
-            var machines = _context.Machines.Select(e => new GetMachineDto
-            {
-                Brand = e.Model,
-                Model = e.Model,
-                MachineId = e.MachineId
-            });
+            var machines = _context.Machines
+                .AsQueryable()
+                .Select(e => new MachineDto
+                {
+                    Brand = e.Model,
+                    Identifier = e.Identifier,
+                    Model = e.Model,
+                    MachineId = e.MachineId,
+                    Category = e.Category.CategoryId
+                });
             return machines.ToList();
         }
 
         // GET: api/Machine/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CreateMachineDto>> GetMachine(Guid id)
+        public async Task<ActionResult<MachineDto>> GetMachine(Guid id)
         {
-            
-            var machine = await (from b in _context.Machines 
-                select new CreateMachineDto
+
+            var machine = await _context.Machines
+                .AsQueryable()
+                .Where(e => e.MachineId == id)
+                .Select(e => new MachineDto
                 {
-                    Brand = b.Brand,
-                    Model = b.Model,
-                    MachineId = b.MachineId,
-                    Log = b.Log.LogId
-                }).SingleOrDefaultAsync(b=>b.MachineId == id);
+                    Brand = e.Model,
+                    Identifier = e.Identifier,
+                    Model = e.Model,
+                    MachineId = e.MachineId,
+                    Category = e.Category.CategoryId
+                })
+                .FirstOrDefaultAsync();
 
             if (machine == null)
             {
@@ -61,7 +69,7 @@ namespace SSocial.Controllers
         // PUT: api/Machine/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMachine(Guid id, CreateMachineDto machine)
+        public async Task<IActionResult> PutMachine(Guid id, MachineDto machine)
         {
             if (id != machine.MachineId)
             {
@@ -90,18 +98,20 @@ namespace SSocial.Controllers
         // POST: api/Machine
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CreateMachineDto>> PostMachine(CreateMachineDto machine)
+        public async Task<ActionResult<MachineDto>> PostMachine(MachineDto machine)
         {
-            var newMachine = new Machine
-            {  
+            var machineMapped = new Machine
+            {
+                Identifier = machine.Identifier,
+                Model = machine.Model,
                 Brand = machine.Brand,
-                Log = _context.Logs.Find(machine.Log),
-                Model = machine.Model
+                Category = await _context.Categories.FindAsync(machine.Category),
             };
-            _context.Machines.Add(newMachine);
+            await _context.Machines.AddAsync(machineMapped);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMachine", new { id = newMachine.MachineId }, newMachine);
+            
+            machine.MachineId = machineMapped.MachineId;
+            return CreatedAtAction("GetMachine", new { id = machineMapped.MachineId }, machine);
         }
 
         // DELETE: api/Machine/5
