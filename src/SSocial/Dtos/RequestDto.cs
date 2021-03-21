@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using SSocial.Utils;
 
 namespace SSocial.Dtos
@@ -7,10 +8,23 @@ namespace SSocial.Dtos
     {
         public Guid RequestId { get; set; }
         public string Description { get; set; }
+        
+        [Required]
         public Scale Priority { get; set; }
+        
+        [Required]
         public Guid Supervisor { get; set; }
+        
+        [Required]
+        public Guid Machine { get; set; }
+        
+        [Required]
+        public string ProblemCode { get; set; }
+        
+        [Required]
+        public Guid Log { get; set; }
+        
         public DateTime CreatedAt { get; set; }
-        public DateTime EditedAt { get; set; }
 
     }
 }

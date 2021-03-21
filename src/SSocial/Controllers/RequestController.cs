@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,26 +18,33 @@ namespace SSocial.Controllers
     public class RequestController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public RequestController(ApplicationDbContext context)
+        public RequestController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Request
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RequestDto>>> GetRequest()
         {
-            return await _context.Request.Select(c => new RequestDto
-            {
-                Description = c.Description,
-                Priority = c.Priority,
-                //TODO: Finalize this
-                // Supervisor = c.Supervisor.Id,
-                CreatedAt = c.CreatedAt,
-                EditedAt = c.EditedAt,
-                RequestId = c.RequestId
-            }).ToListAsync();
+            var requestList = await _context.Request
+                .AsQueryable()
+                .AsSplitQuery()
+                .Select(r => new RequestDto
+                {
+                    Description = r.Description,
+                    Log = r.LogId,
+                    Machine = r.MachineId,
+                    Priority = r.Priority,
+                    Supervisor = r.SupervisorId,
+                    CreatedAt = r.CreatedAt,
+                    ProblemCode = r.ProblemCode,
+                    RequestId = r.RequestId
+                }).ToListAsync();
+            return requestList;
         }
 
         // GET: api/Request/5
@@ -56,7 +65,6 @@ namespace SSocial.Controllers
                 //TODO: finzalize
                 // Supervisor = request.Supervisor.Id,
                 CreatedAt = request.CreatedAt,
-                EditedAt = request.EditedAt,
                 RequestId = request.RequestId
             };
         }
@@ -71,6 +79,8 @@ namespace SSocial.Controllers
                 return BadRequest();
             }
 
+            var savedRequest = _mapper.Map<Request>(request);
+
             var saveRequest = new Request
             {
                 Description = request.Description,
@@ -78,7 +88,6 @@ namespace SSocial.Controllers
                 //TODO: finalize
                 // Supervisor = await _context.Users.FindAsync(request.Supervisor),
                 CreatedAt = request.CreatedAt,
-                EditedAt = request.EditedAt,
                 RequestId = request.RequestId
             };
 
@@ -105,19 +114,17 @@ namespace SSocial.Controllers
         [HttpPost]
         public async Task<ActionResult<RequestDto>> PostRequest(RequestDto request)
         {
-            var saveRequest = new Request
-            {
-                Description = request.Description,
-                Priority = request.Priority,
-                // TODO: finalize
-                // Supervisor = await _context.Users.FindAsync(request.Supervisor),
-                CreatedAt = request.CreatedAt,
-                EditedAt = request.EditedAt,
-            };
-            _context.Request.Add(saveRequest);
+            var savedRequest = _mapper.Map<Request>(request);
+            savedRequest.Log = await _context.Logs.FindAsync(request.Log);
+            savedRequest.Machine = await _context.Machines.FindAsync(request.Machine);
+            savedRequest.Supervisor = await _context.Users.FindAsync(request.Supervisor);
+            savedRequest.CreatedAt = DateTime.Now;
+            
+            await _context.Request.AddAsync(savedRequest);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRequest", new { id = saveRequest.RequestId }, saveRequest);
+            request.RequestId = savedRequest.RequestId;
+            return CreatedAtAction("GetRequest", new { id = savedRequest.RequestId }, request);
         }
 
         // DELETE: api/Request/5
