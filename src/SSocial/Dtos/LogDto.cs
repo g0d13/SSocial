@@ -9,7 +9,8 @@ namespace SSocial.Dtos
         public string Name { get; set; }
         
         public string Details { get; set; }
-        public ICollection<Guid> Machines { get; set; }
+        
+        public ICollection<Guid> Categories { get; set; }
         public Guid Mechanic { get; set; }
     }
 }

@@ -34,10 +34,18 @@ namespace SSocial.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LogDto>>> GetLogs()
         {
-            var logMapper = await _context.Logs
-                .ProjectTo<LogDto>(_mapper.ConfigurationProvider).ToListAsync();
-
-            return logMapper;
+            var logsTest = await _context.Logs
+                .AsQueryable()
+                .Select(e => new LogDto
+                {
+                    Categories = e.Categories.Select(c => c.CategoryId).ToList(),
+                    Details = e.Details,
+                    Mechanic = e.Mechanic.Id,
+                    Name = e.Name,
+                    LogId = e.LogId
+                })
+                .ToListAsync();
+            return logsTest;
         }
 
         // GET: api/Log/5
@@ -48,7 +56,6 @@ namespace SSocial.Controllers
                 select new LogDto()
                 {
                     LogId = b.LogId,
-                    Machines = (b.Machines.Select(x => x.MachineId)).ToList(),
                     Mechanic = b.Mechanic.Id,
                     Name = b.Name
                 }).SingleAsync(e => e.LogId == id);
@@ -77,7 +84,6 @@ namespace SSocial.Controllers
                 Name = log.Name,
                 // Mechanic = await _context.Users.FindAsync(log.Mechanic.ToString()),
                 //TODO: UPDATE THis
-                Machines = _context.Machines.Select(e => e).ToList()
             };
 
             _context.Entry(newLog).State = EntityState.Modified;
@@ -105,12 +111,12 @@ namespace SSocial.Controllers
         public async Task<ActionResult<LogDto>> PostLog(LogDto createLog)
         {
             var user = await _userManager.FindByIdAsync(createLog.Mechanic.ToString());
-            
             var newLog = new Log
             {
                 Name = createLog.Name,
-                Machines = createLog.Machines.Select(e => _context.Machines.Find(e)).ToList(),
-                Mechanic = user
+                Mechanic = user,
+                Details = createLog.Details,
+                Categories = createLog.Categories.Select(c => _context.Categories.Find(c)).ToList()
             };
             await _context.Logs.AddAsync(newLog);
             await _context.SaveChangesAsync();
