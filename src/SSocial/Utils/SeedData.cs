@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SSocial.Data;
+using SSocial.Models;
 
 namespace SSocial.Utils
 {

@@ -10,7 +10,7 @@ using SSocial.Data;
 namespace SSocial.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210320125323_InitialCreate")]
+    [Migration("20210321133839_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,19 +21,19 @@ namespace SSocial.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("CategoryMachine", b =>
+            modelBuilder.Entity("CategoryLog", b =>
                 {
                     b.Property<Guid>("CategoriesCategoryId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("MachinesMachineId")
+                    b.Property<Guid>("LogsLogId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("CategoriesCategoryId", "MachinesMachineId");
+                    b.HasKey("CategoriesCategoryId", "LogsLogId");
 
-                    b.HasIndex("MachinesMachineId");
+                    b.HasIndex("LogsLogId");
 
-                    b.ToTable("CategoryMachine");
+                    b.ToTable("CategoryLog");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -278,6 +278,9 @@ namespace SSocial.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Details")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -317,15 +320,18 @@ namespace SSocial.Migrations
                     b.Property<string>("Brand")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("LogId")
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Identifier")
+                        .HasColumnType("text");
 
                     b.Property<string>("Model")
                         .HasColumnType("text");
 
                     b.HasKey("MachineId");
 
-                    b.HasIndex("LogId");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Machines");
                 });
@@ -336,16 +342,16 @@ namespace SSocial.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("LogId")
+                    b.Property<Guid>("LogId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("MachineId")
+                    b.Property<Guid>("MachineId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RepairId")
+                    b.Property<Guid>("RepairId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RequestId")
+                    b.Property<Guid>("RequestId")
                         .HasColumnType("uuid");
 
                     b.HasKey("RecordId");
@@ -379,7 +385,13 @@ namespace SSocial.Migrations
                     b.Property<bool>("IsFixed")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("MechanicId")
+                    b.Property<Guid>("LogId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MechanicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Severity")
@@ -387,7 +399,11 @@ namespace SSocial.Migrations
 
                     b.HasKey("RepairId");
 
+                    b.HasIndex("LogId");
+
                     b.HasIndex("MechanicId");
+
+                    b.HasIndex("RequestId");
 
                     b.ToTable("Repair");
                 });
@@ -399,28 +415,39 @@ namespace SSocial.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("EditedAt")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<Guid>("LogId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MachineId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("SupervisorId")
+                    b.Property<string>("ProblemCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SupervisorId")
                         .HasColumnType("uuid");
 
                     b.HasKey("RequestId");
+
+                    b.HasIndex("LogId");
+
+                    b.HasIndex("MachineId");
 
                     b.HasIndex("SupervisorId");
 
                     b.ToTable("Request");
                 });
 
-            modelBuilder.Entity("CategoryMachine", b =>
+            modelBuilder.Entity("CategoryLog", b =>
                 {
                     b.HasOne("SSocial.Models.Category", null)
                         .WithMany()
@@ -428,9 +455,9 @@ namespace SSocial.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SSocial.Models.Machine", null)
+                    b.HasOne("SSocial.Models.Log", null)
                         .WithMany()
-                        .HasForeignKey("MachinesMachineId")
+                        .HasForeignKey("LogsLogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -506,30 +533,40 @@ namespace SSocial.Migrations
 
             modelBuilder.Entity("SSocial.Models.Machine", b =>
                 {
-                    b.HasOne("SSocial.Models.Log", "Log")
-                        .WithMany("Machines")
-                        .HasForeignKey("LogId");
+                    b.HasOne("SSocial.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Log");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("SSocial.Models.Record", b =>
                 {
                     b.HasOne("SSocial.Models.Log", "Log")
                         .WithMany()
-                        .HasForeignKey("LogId");
+                        .HasForeignKey("LogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SSocial.Models.Machine", "Machine")
                         .WithMany()
-                        .HasForeignKey("MachineId");
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SSocial.Models.Repair", "Repair")
                         .WithMany()
-                        .HasForeignKey("RepairId");
+                        .HasForeignKey("RepairId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SSocial.Models.Request", "Request")
                         .WithMany()
-                        .HasForeignKey("RequestId");
+                        .HasForeignKey("RequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Log");
 
@@ -542,18 +579,50 @@ namespace SSocial.Migrations
 
             modelBuilder.Entity("SSocial.Models.Repair", b =>
                 {
+                    b.HasOne("SSocial.Models.Log", "Log")
+                        .WithMany()
+                        .HasForeignKey("LogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SSocial.Data.ApplicationUser", "Mechanic")
                         .WithMany()
-                        .HasForeignKey("MechanicId");
+                        .HasForeignKey("MechanicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SSocial.Models.Request", null)
+                        .WithMany("Repairs")
+                        .HasForeignKey("RequestId");
+
+                    b.Navigation("Log");
 
                     b.Navigation("Mechanic");
                 });
 
             modelBuilder.Entity("SSocial.Models.Request", b =>
                 {
+                    b.HasOne("SSocial.Models.Log", "Log")
+                        .WithMany()
+                        .HasForeignKey("LogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SSocial.Models.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SSocial.Data.ApplicationUser", "Supervisor")
                         .WithMany()
-                        .HasForeignKey("SupervisorId");
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Log");
+
+                    b.Navigation("Machine");
 
                     b.Navigation("Supervisor");
                 });
@@ -563,9 +632,9 @@ namespace SSocial.Migrations
                     b.Navigation("RefreshTokens");
                 });
 
-            modelBuilder.Entity("SSocial.Models.Log", b =>
+            modelBuilder.Entity("SSocial.Models.Request", b =>
                 {
-                    b.Navigation("Machines");
+                    b.Navigation("Repairs");
                 });
 #pragma warning restore 612, 618
         }
