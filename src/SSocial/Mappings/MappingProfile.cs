@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AutoMapper;
+using SSocial.Data;
 using SSocial.Dtos;
 using SSocial.Models;
 
@@ -12,28 +13,27 @@ namespace SSocial.Mappings
         {
             // Origin destiny
             CreateMap<Category, Guid>().ConstructUsing(x => x.CategoryId);
-            
-            CreateMap<Category, CategoryDto>()
-                .ForMember(m => m.Machines,
-                    opt => opt.
-                        MapFrom(c => c.Machines.Select(ms => ms.MachineId)));
-            
-            CreateMap<CategoryDto, Category>()
-                .ForMember(m => m.Machines, 
-                    opt => opt.Ignore());
 
-            CreateMap<Log, Guid>().ConstructUsing(l => l.LogId);
+            CreateMap<ApplicationUser, UserDetails>().ForMember(u => 
+                u.UserId, opt => 
+                opt.MapFrom(e => e.Id)).ReverseMap();
 
-            CreateMap<Log, LogDto>()
-                .ForMember(m => m.Mechanic, 
-                    opt => opt.MapFrom(m => m.Mechanic.Id))
-                .ForMember(m => m.Machines,
-                    opt => opt
-                        .MapFrom(l => l.Machines.Select(ls => ls.MachineId)));
+            // CreateMap<Log, Guid>().ConstructUsing(l => l.LogId);
+
+            #region Request
+            CreateMap<Request, RequestDto>()
+                .ForMember(r => r.Machine, opt =>
+                    opt.MapFrom(ops => ops.Machine.MachineId))
+                .ForMember(r => r.Log,
+                    opt => opt.MapFrom(ops => ops.Log.LogId))
+                .ForMember(r => r.Supervisor,
+                    opt => opt.MapFrom(op => op.Supervisor.Id));
+            CreateMap<RequestDto, Request>()
+                .ForMember(r => r.Log, opt => opt.Ignore())
+                .ForMember(r => r.Supervisor, opt => opt.Ignore())
+                .ForMember(r => r.Machine, opt => opt.Ignore());
+            #endregion
             
-            CreateMap<LogDto, Log>()
-                .ForMember(m => m.Mechanic, opt => opt.Ignore())
-                .ForMember(m => m.Machines, opt => opt.Ignore());
         }
     }
 }
