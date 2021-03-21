@@ -5,7 +5,7 @@ using SSocial.Utils;
 
 namespace SSocial.Dtos
 {
-    public class GetRepairDto
+    public class RepairDto
     {
         public Guid RepairId { get; set; }
         
@@ -14,6 +14,7 @@ namespace SSocial.Dtos
         public string Details { get; set; }
         [Required]
         
+        public Guid Log { get; set; }
         public Guid Mechanic { get; set; }
         
         public Scale Severity { get; set; }
@@ -21,5 +22,6 @@ namespace SSocial.Dtos
         public DateTime ArrivalTime { get; set; }
         
         public DateTime DepartureTime { get; set; }
+
     }
 }

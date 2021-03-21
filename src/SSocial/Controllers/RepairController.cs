@@ -24,9 +24,9 @@ namespace SSocial.Controllers
 
         // GET: api/Repair
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetRepairDto>>> GetRepair()
+        public async Task<ActionResult<IEnumerable<RepairDto>>> GetRepair()
         {
-            return await _context.Repair.Select(e => new GetRepairDto()
+            return await _context.Repair.Select(e => new RepairDto()
             {
                 Mechanic = e.Mechanic.Id,
                 Details = e.Details,
@@ -34,13 +34,14 @@ namespace SSocial.Controllers
                 ArrivalTime = e.ArrivalTime,
                 DepartureTime = e.DepartureTime,
                 IsFixed = e.IsFixed,
-                RepairId = e.RepairId
+                RepairId = e.RepairId,
+                Log = e.LogId
             }).ToListAsync();
         }
 
         // GET: api/Repair/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetRepairDto>> GetRepair(Guid id)
+        public async Task<ActionResult<RepairDto>> GetRepair(Guid id)
         {
             var repair = await _context.Repair.FindAsync(id);
 
@@ -49,7 +50,7 @@ namespace SSocial.Controllers
                 return NotFound();
             }
 
-            return new GetRepairDto()
+            return new RepairDto()
             {
                 Mechanic = repair.Mechanic.Id,
                 Details = repair.Details,
@@ -64,7 +65,7 @@ namespace SSocial.Controllers
         // PUT: api/Repair/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRepair(Guid id, GetRepairDto repairDto)
+        public async Task<IActionResult> PutRepair(Guid id, RepairDto repairDto)
         {
             if (id != repairDto.RepairId)
             {
@@ -107,18 +108,19 @@ namespace SSocial.Controllers
         // POST: api/Repair
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<GetRepairDto>> PostRepair(GetRepairDto repairDto)
+        public async Task<ActionResult<RepairDto>> PostRepair(RepairDto repairDto)
         {
             var repair = new Repair()
             {
-                //TODO: finalize
-                // Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
                 Details = repairDto.Details,
                 Severity = repairDto.Severity,
                 ArrivalTime = repairDto.ArrivalTime,
                 DepartureTime = repairDto.DepartureTime,
                 IsFixed = repairDto.IsFixed,
-                RepairId = repairDto.RepairId
+                RepairId = repairDto.RepairId,
+                Log = await _context.Logs.FindAsync(repairDto.Log),
+                Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
+                
             };
             await _context.Repair.AddAsync(repair);
             await _context.SaveChangesAsync();
