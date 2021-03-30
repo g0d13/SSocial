@@ -37,4 +37,8 @@
       <_ContentIncludedByDefault Remove="src\SSocialsf\Properties\launchSettings.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Entities\Entities.csproj" />
+    </ItemGroup>
+
 </Project>
