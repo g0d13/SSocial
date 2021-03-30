@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using SSocial.Utils;
+using Entities.Models;
 
-namespace SSocial.Dtos
+namespace Entities.DataTransferObjects
 {
     public class RequestDto
     {

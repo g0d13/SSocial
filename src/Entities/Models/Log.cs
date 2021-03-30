@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
-using SSocial.Data;
 
-namespace SSocial.Models
+namespace Entities.Models
 {
     public class Log
     {
@@ -16,7 +13,7 @@ namespace SSocial.Models
         
         
         public Guid MechanicId { get; set; }
-        public virtual ApplicationUser Mechanic { get; set; }
+        public virtual User Mechanic { get; set; }
 
         //For category Entity
         public ICollection<Category> Categories { get; set; }

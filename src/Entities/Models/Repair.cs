@@ -1,9 +1,6 @@
 using System;
-using Microsoft.AspNetCore.Identity;
-using SSocial.Data;
-using SSocial.Utils;
 
-namespace SSocial.Models
+namespace Entities.Models
 {
     public class Repair
     {
@@ -20,6 +17,6 @@ namespace SSocial.Models
         
 
         public Guid MechanicId { get; set; }
-        public ApplicationUser Mechanic { get; set; }
+        public User Mechanic { get; set; }
     }
 }

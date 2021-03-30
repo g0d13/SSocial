@@ -1,6 +1,6 @@
 using System;
 
-namespace SSocial.Dtos
+namespace Entities.DataTransferObjects
 {
     public class MachineDto
     {

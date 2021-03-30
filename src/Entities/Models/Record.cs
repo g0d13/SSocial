@@ -1,6 +1,6 @@
 using System;
 
-namespace SSocial.Models
+namespace Entities.Models
 {
     public class Record
     {

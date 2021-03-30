@@ -1,12 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
-using SSocial.Data;
-using SSocial.Utils;
 
-namespace SSocial.Models
+namespace Entities.Models
 {
     public class Request
     {
@@ -24,7 +20,7 @@ namespace SSocial.Models
         
         
         public Guid SupervisorId { get; set; }
-        public ApplicationUser Supervisor { get; set; }
+        public User Supervisor { get; set; }
         
 
         public Guid MachineId { get; set; }

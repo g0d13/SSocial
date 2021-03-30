@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SSocial.Dtos
+namespace Entities.DataTransferObjects
 {
     public class LogDto
     {

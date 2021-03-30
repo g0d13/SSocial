@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SSocial.Utils;
 
 namespace SSocial
 {
@@ -9,7 +8,7 @@ namespace SSocial
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().InitializeDatabase().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

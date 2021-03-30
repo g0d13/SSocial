@@ -1,9 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
-using SSocial.Utils;
+using Entities.Models;
 
-namespace SSocial.Dtos
+namespace Entities.DataTransferObjects
 {
     public class RepairDto
     {

@@ -1,4 +1,4 @@
-namespace SSocial.Utils
+namespace Entities.Models
 {
     public enum Scale
     {
