@@ -1,5 +1,8 @@
 using System;
 using System.Text;
+using Entities;
+using Entities.Configuration;
+using Entities.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,8 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SSocial.Configuration;
-using SSocial.Data;
+using SSocial.Extensions;
+using SSocial.Hubs;
 
 namespace SSocial
 {
@@ -28,24 +31,18 @@ namespace SSocial
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(builder =>
-                {
-                    builder.WithOrigins("http://localhost:8080").AllowCredentials().AllowAnyHeader();
-                });
-            });
-            services.AddDbContext<ApplicationDbContext>(opt =>
+            services.ConfigureCors();
+            services.AddDbContext<RepositoryContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
+            services.AddIdentity<User, Role>(opt =>
                 {
                     opt.SignIn.RequireConfirmedAccount = true;
                     opt.Password.RequireNonAlphanumeric = false;
                     opt.Password.RequireUppercase = false;
                 })
-                .AddRoles<ApplicationRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<RepositoryContext>();
 
             services.AddControllers();
 
@@ -91,6 +88,7 @@ namespace SSocial
                     Type = SecuritySchemeType.ApiKey
                 });
             });
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -110,7 +108,11 @@ namespace SSocial
             app.UseAuthentication();
             app.UseAuthorization();
             
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<NotifHub>("/notify");
+            });
         }
     }
 }
