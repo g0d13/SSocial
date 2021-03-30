@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace SSocial.Dtos
+namespace Entities.DataTransferObjects
 {
     public class LoginUserDto
     {

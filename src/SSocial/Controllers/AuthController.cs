@@ -6,6 +6,10 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Entities;
+using Entities.Configuration;
+using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,9 +18,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SSocial.Configuration;
-using SSocial.Data;
-using SSocial.Dtos;
 
 namespace SSocial.Controllers
 {
@@ -26,19 +27,19 @@ namespace SSocial.Controllers
     public class AuthController : ControllerBase
     {
         private readonly JwtBearerTokenSettings _jwtBearerTokenSettings;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _dbContext;
-        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly UserManager<User> _userManager;
+        private readonly RepositoryContext _dbContext;
+        private readonly RoleManager<Role> _roleManager;
 
         public AuthController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, 
-            UserManager<ApplicationUser> userManager, 
-            ApplicationDbContext dbContext,
-            RoleManager<ApplicationRole> roleManager)
+            UserManager<User> userManager, 
+            RepositoryContext dbContext,
+            RoleManager<Role> roleManager)
         {
-            this._jwtBearerTokenSettings = jwtTokenOptions.Value;
-            this._userManager = userManager;
-            this._dbContext = dbContext;
-            this._roleManager = roleManager;
+            _jwtBearerTokenSettings = jwtTokenOptions.Value;
+            _userManager = userManager;
+            _dbContext = dbContext;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -50,7 +51,7 @@ namespace SSocial.Controllers
                 return new BadRequestObjectResult(new {Message = "User Registration Failed"});
             }
 
-            var identityUser = new ApplicationUser()
+            var identityUser = new User()
             {
                 FirstName = registerUserDto.FirstName,
                 LastName = registerUserDto.LastName,
@@ -87,7 +88,7 @@ namespace SSocial.Controllers
 
         public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
         {
-            ApplicationUser identityUser;
+            User identityUser;
 
             if (!ModelState.IsValid
                 || userDto == null
@@ -96,7 +97,7 @@ namespace SSocial.Controllers
                 return new BadRequestObjectResult(new { Message = "Usuario y/o contrasena incorrecto" });
             }
             var role = await _userManager.GetRolesAsync(identityUser);
-            identityUser.Role = role[0];
+            // identityUser.Role = role[0];
 
             var token = GenerateTokens(identityUser);
             return Ok(new { Token = token, Message = "Success" });
@@ -151,7 +152,7 @@ namespace SSocial.Controllers
             return Ok(new {Token = "", Message = "Logged Out"});
         }
 
-        private RefreshToken GetValidRefreshToken(string token, ApplicationUser identityUser)
+        private RefreshToken GetValidRefreshToken(string token, User identityUser)
         {
             if (identityUser == null)
             {
@@ -186,7 +187,7 @@ namespace SSocial.Controllers
             return true;
         }
 
-        private async Task<ApplicationUser> ValidateUser(LoginUserDto userDto)
+        private async Task<User> ValidateUser(LoginUserDto userDto)
         {
             var identityUser = await _userManager.FindByEmailAsync(userDto.Email);
             if (identityUser == null) return null;
@@ -197,7 +198,7 @@ namespace SSocial.Controllers
 
         }
 
-        private string GenerateTokens(ApplicationUser identityUser)
+        private string GenerateTokens(User identityUser)
         {
             // Generate access token
             var accessToken = GenerateAccessToken(identityUser);
@@ -227,7 +228,7 @@ namespace SSocial.Controllers
             return accessToken;
         }
 
-        private string GenerateAccessToken(ApplicationUser identityUser)
+        private string GenerateAccessToken(User identityUser)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtBearerTokenSettings.SecretKey);
@@ -236,7 +237,8 @@ namespace SSocial.Controllers
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Email, identityUser.Email),
-                    new Claim(ClaimTypes.Role, identityUser.Role)
+                    
+                    // new Claim(ClaimTypes.Role, identityUser.Role)
                 }),
 
                 Expires = DateTime.UtcNow.AddSeconds(_jwtBearerTokenSettings.ExpiryTimeInSeconds),
