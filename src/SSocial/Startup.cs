@@ -32,44 +32,12 @@ namespace SSocial
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.ConfigureCors();
-            services.AddDbContext<RepositoryContext>(opt =>
-                opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddIdentity<User, Role>(opt =>
-                {
-                    opt.SignIn.RequireConfirmedAccount = true;
-                    opt.Password.RequireNonAlphanumeric = false;
-                    opt.Password.RequireUppercase = false;
-                })
-                .AddRoles<Role>()
-                .AddEntityFrameworkStores<RepositoryContext>();
+            services.ConfigureDatabaseContext(Configuration);
+            services.ConfigureIdentity();
 
             services.AddControllers();
 
-            var jwtSection = Configuration.GetSection("JwtBearerTokenSettings");
-            services.Configure<JwtBearerTokenSettings>(jwtSection);
-            var jwtBearerTokenSettings = jwtSection.Get<JwtBearerTokenSettings>();
-            var key = Encoding.ASCII.GetBytes(jwtBearerTokenSettings.SecretKey);
-            services.AddAuthentication(opt =>
-            {
-                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(opt =>
-            {
-                opt.RequireHttpsMetadata = false;
-                opt.SaveToken = true;
-                opt.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtBearerTokenSettings.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwtBearerTokenSettings.Audience,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+            services.ConfigureJWT(Configuration);
             /*services.AddAuthorization(options =>
             {
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
