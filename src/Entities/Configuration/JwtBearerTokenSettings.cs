@@ -1,4 +1,4 @@
-namespace SSocial.Configuration
+namespace Entities.Configuration
 {
     public class JwtBearerTokenSettings
     {

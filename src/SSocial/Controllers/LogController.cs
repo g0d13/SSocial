@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Entities;
+using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SSocial.Data;
-using SSocial.Dtos;
-using SSocial.Models;
 
 namespace SSocial.Controllers
 {
@@ -17,12 +17,12 @@ namespace SSocial.Controllers
     [ApiController]
     public class LogController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RepositoryContext _context;
+        private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
 
-        public LogController(ApplicationDbContext context, 
-            UserManager<ApplicationUser> userManager,
+        public LogController(RepositoryContext context, 
+            UserManager<User> userManager,
             IMapper mapper)
         {
             _context = context;

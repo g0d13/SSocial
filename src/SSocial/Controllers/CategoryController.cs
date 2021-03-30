@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Entities;
+using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SSocial.Data;
-using SSocial.Dtos;
-using SSocial.Models;
 
 namespace SSocial.Controllers
 {
@@ -17,9 +17,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly RepositoryContext _context;
         private readonly IMapper _mapper;
-        public CategoryController(ApplicationDbContext context, IMapper mapper)
+        public CategoryController(RepositoryContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
