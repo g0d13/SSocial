@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Entities;
+using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SSocial.Data;
-using SSocial.Dtos;
 
 
 namespace SSocial.Controllers
@@ -14,12 +15,14 @@ namespace SSocial.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly RepositoryContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<Role> _roleManager;
 
 
-        public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        public UsersController(RepositoryContext context,
+            UserManager<User> userManager,
+            RoleManager<Role> roleManager)
         {
             _context = context;
             _roleManager = roleManager;

@@ -4,12 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Entities;
+using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using SSocial.Data;
-using SSocial.Dtos;
-using SSocial.Models;
+using SSocial.Hubs;
+
 
 namespace SSocial.Controllers
 {
@@ -17,13 +20,16 @@ namespace SSocial.Controllers
     [ApiController]
     public class RequestController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly RepositoryContext _context;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotifHub> _hubContext;
 
-        public RequestController(ApplicationDbContext context, IMapper mapper)
+        public RequestController(
+            RepositoryContext context, IMapper mapper, IHubContext<NotifHub> hubContext)
         {
             _context = context;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
         // GET: api/Request
@@ -45,6 +51,13 @@ namespace SSocial.Controllers
                     RequestId = r.RequestId
                 }).ToListAsync();
             return requestList;
+        }
+
+        [HttpGet("test")]
+        public ActionResult SendNumber()
+        {
+            _hubContext.Clients.All.SendCoreAsync("Metodo", new []{"Message"});
+            return Ok(new {Message = "Hola"});
         }
 
         // GET: api/Request/5
@@ -148,4 +161,5 @@ namespace SSocial.Controllers
             return _context.Request.Any(e => e.RequestId == id);
         }
     }
+    
 }

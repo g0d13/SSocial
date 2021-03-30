@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Entities;
+using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SSocial.Data;
-using SSocial.Dtos;
-using SSocial.Models;
 
 namespace SSocial.Controllers
 {
@@ -15,9 +15,9 @@ namespace SSocial.Controllers
     [ApiController]
     public class RepairController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly RepositoryContext _context;
 
-        public RepairController(ApplicationDbContext context)
+        public RepairController(RepositoryContext context)
         {
             _context = context;
         }
