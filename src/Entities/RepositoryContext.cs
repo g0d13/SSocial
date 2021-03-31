@@ -1,4 +1,5 @@
 ﻿using System;
+using Entities.Configuration;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace Entities
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
     }
         
     public DbSet<Machine> Machines { get; set; }
