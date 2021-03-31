@@ -1,16 +1,10 @@
 using System;
-using System.Text;
-using Entities;
-using Entities.Configuration;
-using Entities.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SSocial.Extensions;
 using SSocial.Hubs;
@@ -38,12 +32,6 @@ namespace SSocial
             services.AddControllers();
 
             services.ConfigureJWT(Configuration);
-            /*services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            }); */
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SSocial", Version = "v1"});
@@ -68,10 +56,11 @@ namespace SSocial
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SSocial v1"));
             }
+            
             app.UseCors();
 
             app.UseHttpsRedirection();
-            
+
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -81,6 +70,7 @@ namespace SSocial
                 endpoints.MapControllers();
                 endpoints.MapHub<NotifHub>("/notify");
             });
+            
         }
     }
 }
