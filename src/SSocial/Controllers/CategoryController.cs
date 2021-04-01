@@ -31,12 +31,7 @@ namespace SSocial.Controllers
         {
             var categories = await _context.Categories
                 .AsQueryable()
-                .Select(e => new CategoryDto
-                {
-                    Details = e.Details,
-                    Name = e.Name,
-                    CategoryId = e.CategoryId
-                })
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
             return categories;
         }
@@ -45,16 +40,9 @@ namespace SSocial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategory(Guid id)
         {
-            // var categoryMapper = await _context.Categories.Where(e => e.CategoryId == id)
-            //     .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
             var categoryMapper = await _context.Categories
                 .Where(e => e.CategoryId == id)
-                .Select(e => new CategoryDto
-                {
-                    Details = e.Details,
-                    Name = e.Name,
-                    CategoryId = e.CategoryId
-                })
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
                 .FirstAsync();
             if (categoryMapper == null)
             {
@@ -73,13 +61,11 @@ namespace SSocial.Controllers
             {
                 return BadRequest();
             }
-            var categoryMapped = new Category
-            {
-                Details = category.Details,
-                Name = category.Name,
-            };
 
-            _context.Entry(categoryMapped).State = EntityState.Modified;
+            var categoryDb = _mapper.Map<Category>(category);
+
+            _context.Entry(categoryDb).State = EntityState.Modified;
+            _context.Categories.Update(categoryDb);
 
             try
             {
@@ -94,7 +80,7 @@ namespace SSocial.Controllers
                 throw;
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Category
@@ -102,16 +88,12 @@ namespace SSocial.Controllers
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto category)
         {
-            var categoryMapped = new Category
-            {
-                Details = category.Details,
-                Name = category.Name,
-            };
-            await _context.Categories.AddAsync(categoryMapped);
+            var categoryDb = _mapper.Map<Category>(category);
+            await _context.Categories.AddAsync(categoryDb);
             await _context.SaveChangesAsync();
 
-            category.CategoryId = categoryMapped.CategoryId;
-            return CreatedAtAction("GetCategory", new { id = categoryMapped.CategoryId }, category);
+            category.CategoryId = categoryDb.CategoryId;
+            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
         }
 
         // DELETE: api/Category/5
@@ -133,12 +115,6 @@ namespace SSocial.Controllers
         private bool CategoryExists(Guid id)
         {
             return _context.Categories.Any(e => e.CategoryId == id);
-        }
-
-        private Category CreateCategory(CategoryDto category)
-        {
-            var categoryMapped = _mapper.Map<Category>(category);
-            return categoryMapped;
         }
     }
 }
