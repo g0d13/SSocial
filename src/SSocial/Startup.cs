@@ -57,6 +57,8 @@ namespace SSocial
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SSocial v1"));
             }
             
+            app.ConfigureExceptionHandler();
+            
             app.UseCors();
 
             app.UseHttpsRedirection();
