@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using AutoMapper;
+using Entities.DataTransferObjects;
+using Entities.Models;
 
 namespace SSocial.Mappings
 {
@@ -8,7 +10,11 @@ namespace SSocial.Mappings
     {
         public MappingProfile()
         {
-
+            // Origin destiny
+            CreateMap<RegisterUserDto, User>()
+                .ForMember(e => e.UserName, opt => opt.MapFrom(c => c.Email));
+            CreateMap<User, RegisterUserDto>()
+                .ForMember(m => m.Role, opt => opt.Ignore());
         }
     }
 }

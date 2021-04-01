@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Entities;
 using Entities.Configuration;
 using Entities.DataTransferObjects;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -30,34 +32,37 @@ namespace SSocial.Controllers
         private readonly UserManager<User> _userManager;
         private readonly RepositoryContext _dbContext;
         private readonly RoleManager<Role> _roleManager;
+        private readonly ILogger _logger;
+        
+        private readonly IMapper _mapper;
 
         public AuthController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, 
             UserManager<User> userManager, 
             RepositoryContext dbContext,
-            RoleManager<Role> roleManager)
+            ILogger<AuthController> logger,
+            RoleManager<Role> roleManager,
+            IMapper mapper)
         {
             _jwtBearerTokenSettings = jwtTokenOptions.Value;
             _userManager = userManager;
             _dbContext = dbContext;
             _roleManager = roleManager;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUserDto)
         {
+            _logger.LogInformation("Registering user");
             if (!ModelState.IsValid || registerUserDto == null)
             {
                 return new BadRequestObjectResult(new {Message = "User Registration Failed"});
             }
 
-            var identityUser = new User()
-            {
-                FirstName = registerUserDto.FirstName,
-                LastName = registerUserDto.LastName,
-                Email = registerUserDto.Email,
-                UserName = registerUserDto.Email
-            };
+            var identityUser = _mapper.Map<User>(registerUserDto);
+
             var result = await _userManager.CreateAsync(identityUser, registerUserDto.Password);
             if (!result.Succeeded)
             {
