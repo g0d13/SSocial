@@ -63,6 +63,21 @@ namespace SSocial.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Machines",
+                columns: table => new
+                {
+                    MachineId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Identifier = table.Column<string>(type: "text", nullable: true),
+                    SerialNumber = table.Column<string>(type: "text", nullable: true),
+                    Model = table.Column<string>(type: "text", nullable: true),
+                    Brand = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Machines", x => x.MachineId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -213,28 +228,6 @@ namespace SSocial.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Machines",
-                columns: table => new
-                {
-                    MachineId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Identifier = table.Column<string>(type: "text", nullable: true),
-                    SerialNumber = table.Column<string>(type: "text", nullable: true),
-                    Model = table.Column<string>(type: "text", nullable: true),
-                    Brand = table.Column<string>(type: "text", nullable: true),
-                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Machines", x => x.MachineId);
-                    table.ForeignKey(
-                        name: "FK_Machines_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CategoryLog",
                 columns: table => new
                 {
@@ -375,9 +368,9 @@ namespace SSocial.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("303f1331-7fa5-4027-8d9f-3f7ee5bc76c2"), "9555d711-cb90-418b-b2b2-af5a7a32b79a", "Admin", "ADMIN" },
-                    { new Guid("e79af9e7-8931-4ea3-836b-89bfb8029d8f"), "26a496ec-638a-4dc6-8f1c-ecc942813fad", "Mechanic", "MECHANIC" },
-                    { new Guid("756fa4ee-9e06-4536-a436-1a6bc16943b6"), "d833a7c6-11a1-4f54-80ba-ddd44225af28", "Supervisor", "SUPERVISOR" }
+                    { new Guid("44eb59c9-20a9-477d-9b5a-27c2e560e4f3"), "3fd7498b-71ed-4936-aacd-e90286d404aa", "Admin", "ADMIN" },
+                    { new Guid("49dbf794-f144-4ab0-81e0-1e83e97407ae"), "6a610eec-af04-46ec-b72b-089e3722b129", "Mechanic", "MECHANIC" },
+                    { new Guid("65284b5e-961c-4c40-8a8b-ee83cdc851ae"), "de811981-6806-41a9-947f-b3147d52b575", "Supervisor", "SUPERVISOR" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -426,11 +419,6 @@ namespace SSocial.Migrations
                 name: "IX_Logs_MechanicId",
                 table: "Logs",
                 column: "MechanicId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Machines_CategoryId",
-                table: "Machines",
-                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Records_LogId",
@@ -518,6 +506,9 @@ namespace SSocial.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
                 name: "Repair");
 
             migrationBuilder.DropTable(
@@ -531,9 +522,6 @@ namespace SSocial.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Categories");
         }
     }
 }
