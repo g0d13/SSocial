@@ -9,8 +9,6 @@ namespace Entities.Models
         public string SerialNumber { get; set; }
         public string Model { get; set; }
         public string Brand { get; set; }
-
-        public Guid CategoryId { get; set; }
-        public Category Category { get; set; }
+        
     }
 }

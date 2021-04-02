@@ -35,7 +35,6 @@ namespace SSocial.Controllers
                     Identifier = e.Identifier,
                     Model = e.Model,
                     MachineId = e.MachineId,
-                    Category = e.Category.CategoryId
                 });
             return machines.ToList();
         }
@@ -54,7 +53,6 @@ namespace SSocial.Controllers
                     Identifier = e.Identifier,
                     Model = e.Model,
                     MachineId = e.MachineId,
-                    Category = e.Category.CategoryId
                 })
                 .FirstOrDefaultAsync();
 
@@ -104,8 +102,7 @@ namespace SSocial.Controllers
             {
                 Identifier = machine.Identifier,
                 Model = machine.Model,
-                Brand = machine.Brand,
-                Category = await _context.Categories.FindAsync(machine.Category),
+                Brand = machine.Brand
             };
             await _context.Machines.AddAsync(machineMapped);
             await _context.SaveChangesAsync();
