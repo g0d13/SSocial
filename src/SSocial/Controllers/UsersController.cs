@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Entities;
 using Entities.DataTransferObjects;
 using Entities.Models;
@@ -18,38 +20,31 @@ namespace SSocial.Controllers
         private readonly RepositoryContext _context;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
-
+        private readonly IMapper _mapper;
 
         public UsersController(RepositoryContext context,
             UserManager<User> userManager,
+            IMapper mapper,
             RoleManager<Role> roleManager)
         {
             _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
+            _mapper = mapper;
         }
         
         [HttpGet]
         public ActionResult<IEnumerable<UserDetails>> GetUsers()
         {
-            var usersWithRoles = _userManager.GetUsersInRoleAsync(Role.Supervisor)
-                .Result.Select(c => new UserDetails
-                {
-                    Email = c.Email,
-                    Role = Role.Supervisor,
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    UserId = c.Id
-                }).Concat(_userManager.GetUsersInRoleAsync(Role.Mechanic).Result
-                    .Select(c => new UserDetails
-                {
-                    Email = c.Email,
-                    Role = Role.Mechanic,
-                    FirstName = c.FirstName,
-                    UserId = c.Id
-                }));
-
-            return usersWithRoles.ToList();
+            var supervisorUsers = _userManager.GetUsersInRoleAsync(Role.Supervisor)
+                .Result.AsQueryable().ProjectTo<UserDetails>(_mapper.ConfigurationProvider).ToList();
+            supervisorUsers.ForEach(c => c.Role = Role.Supervisor);
+            
+            var mechanicUsers = _userManager.GetUsersInRoleAsync(Role.Mechanic)
+                .Result.AsQueryable().ProjectTo<UserDetails>(_mapper.ConfigurationProvider).ToList();
+            mechanicUsers.ForEach(c => c.Role = Role.Mechanic);
+            var users = supervisorUsers.Concat(mechanicUsers).ToList();
+            return users;
         }
 
         [HttpGet]
@@ -58,15 +53,13 @@ namespace SSocial.Controllers
         {
             var user = await  _userManager.FindByIdAsync(id.ToString());
             if (user == null)
-                return BadRequest(new { Mesage = "User not found" });
+                return NotFound(new { Mesage = "User not found" });
             var role = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
-            return new UserDetails
-            {
-                Email = user.Email,
-                Role = role,
-                FirstName = user.FirstName,
-                UserId = user.Id
-            };
+
+            var returnUser = _mapper.Map<UserDetails>(user);
+            returnUser.Role = role;
+
+            return returnUser;
         }
         
         [HttpGet]
@@ -75,14 +68,11 @@ namespace SSocial.Controllers
         {
             var role = _roleManager.Roles.FirstOrDefault(e => e.Name == name);
             if( role == null)
-                return new BadRequestObjectResult(new { Message = "Role not found" });
-            return _userManager.GetUsersInRoleAsync(role.Name).Result.Select(c => new UserDetails
-            {
-                Email = c.Email,
-                Role = role.Name,
-                FirstName = c.FirstName,
-                UserId = c.Id
-            }).ToList();
+                return NotFound(new { Mesage = "Role not found" });
+            var users = _userManager.GetUsersInRoleAsync(role.Name)
+                .Result.AsQueryable().ProjectTo<UserDetails>(_mapper.ConfigurationProvider).ToList();
+            users.ForEach(c => c.Role = role.Name);
+            return users;
         }
     }
 }
