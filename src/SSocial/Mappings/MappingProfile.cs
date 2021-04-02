@@ -15,8 +15,10 @@ namespace SSocial.Mappings
                 .ForMember(e => e.UserName, opt => opt.MapFrom(c => c.Email));
             CreateMap<User, RegisterUserDto>()
                 .ForMember(m => m.Role, opt => opt.Ignore());
-
+            CreateMap<User, UserDetails>().ReverseMap();
             CreateMap<CategoryDto, Category>().ReverseMap();
+
+            CreateMap<Log, LogDto>().ReverseMap();
         }
     }
 }
