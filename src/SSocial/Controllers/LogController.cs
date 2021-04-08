@@ -36,14 +36,7 @@ namespace SSocial.Controllers
         {
             var logsTest = await _context.Logs
                 .AsQueryable()
-                .Select(e => new LogDto
-                {
-                    Categories = e.Categories.Select(c => c.CategoryId).ToList(),
-                    Details = e.Details,
-                    Mechanic = e.Mechanic.Id,
-                    Name = e.Name,
-                    LogId = e.LogId
-                })
+                .ProjectTo<LogDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
             return logsTest;
         }
@@ -52,13 +45,9 @@ namespace SSocial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<LogDto>> GetLog(Guid id)
         {
-            var log = await (from b in _context.Logs
-                select new LogDto()
-                {
-                    LogId = b.LogId,
-                    Mechanic = b.Mechanic.Id,
-                    Name = b.Name
-                }).SingleAsync(e => e.LogId == id);
+            var log = await _context.Logs.AsQueryable()
+                .Where(e => e.LogId == id)
+                .ProjectTo<LogDto>(_mapper.ConfigurationProvider).SingleAsync();
 
             if (log == null)
             {
@@ -67,27 +56,27 @@ namespace SSocial.Controllers
 
             return log;
         }
-
-        // PUT: api/Log/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLog(Guid id, LogDto log)
+        public async Task<IActionResult> PutLog(Guid id, LogForCreationDto log)
         {
             if (id != log.LogId)
             {
                 return BadRequest();
             }
 
+            var categories = log.Categories.Select(c => _context.Categories.Find(c)).ToList();
             var newLog = new Log()
             {
                 LogId = log.LogId,
                 Name = log.Name,
-                // Mechanic = await _context.Users.FindAsync(log.Mechanic.ToString()),
-                //TODO: UPDATE THis
+                Mechanic = await _context.Users.FindAsync(log.Mechanic),
+                Categories =  categories
             };
 
             _context.Entry(newLog).State = EntityState.Modified;
-
+            _context.Logs.Update(newLog);
+            
             try
             {
                 await _context.SaveChangesAsync();
@@ -106,9 +95,8 @@ namespace SSocial.Controllers
         }
 
         // POST: api/Log
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<LogDto>> PostLog(LogDto createLog)
+        public async Task<ActionResult<LogForCreationDto>> PostLog(LogForCreationDto createLog)
         {
             var user = await _userManager.FindByIdAsync(createLog.Mechanic.ToString());
             var newLog = new Log
@@ -121,6 +109,7 @@ namespace SSocial.Controllers
             await _context.Logs.AddAsync(newLog);
             await _context.SaveChangesAsync();
             
+            createLog.LogId = newLog.LogId;
             return CreatedAtAction("GetLog", new { id = newLog.LogId }, createLog);
         }
  
