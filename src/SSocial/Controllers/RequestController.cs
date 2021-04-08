@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -127,11 +128,22 @@ namespace SSocial.Controllers
         [HttpPost]
         public async Task<ActionResult<RequestDto>> PostRequest(RequestDto request)
         {
-            var savedRequest = _mapper.Map<Request>(request);
-            savedRequest.Log = await _context.Logs.FindAsync(request.Log);
-            savedRequest.Machine = await _context.Machines.FindAsync(request.Machine);
-            savedRequest.Supervisor = await _context.Users.FindAsync(request.Supervisor);
-            savedRequest.CreatedAt = DateTime.Now;
+            var supervisor = HttpContext.User.FindFirst(ClaimTypes.Actor)?.Value;
+            if (supervisor == null)
+            {
+                return BadRequest("");
+            }
+
+            var savedRequest = new Request
+            {
+                Description = request.Description,
+                ProblemCode = request.ProblemCode,
+                Log = await _context.Logs.FindAsync(request.Log),
+                Machine = await _context.Machines.FindAsync(request.Machine),
+                SupervisorId = Guid.Parse(supervisor),
+                CreatedAt =  DateTime.Now,
+                Priority = request.Priority,
+            };
             
             await _context.Request.AddAsync(savedRequest);
             await _context.SaveChangesAsync();
