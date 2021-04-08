@@ -82,9 +82,6 @@ namespace SSocial.Migrations
                     b.Property<string>("Brand")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Identifier")
                         .HasColumnType("text");
 
@@ -95,8 +92,6 @@ namespace SSocial.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("MachineId");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Machines");
                 });
@@ -275,22 +270,22 @@ namespace SSocial.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("303f1331-7fa5-4027-8d9f-3f7ee5bc76c2"),
-                            ConcurrencyStamp = "9555d711-cb90-418b-b2b2-af5a7a32b79a",
+                            Id = new Guid("44eb59c9-20a9-477d-9b5a-27c2e560e4f3"),
+                            ConcurrencyStamp = "3fd7498b-71ed-4936-aacd-e90286d404aa",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("e79af9e7-8931-4ea3-836b-89bfb8029d8f"),
-                            ConcurrencyStamp = "26a496ec-638a-4dc6-8f1c-ecc942813fad",
+                            Id = new Guid("49dbf794-f144-4ab0-81e0-1e83e97407ae"),
+                            ConcurrencyStamp = "6a610eec-af04-46ec-b72b-089e3722b129",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = new Guid("756fa4ee-9e06-4536-a436-1a6bc16943b6"),
-                            ConcurrencyStamp = "d833a7c6-11a1-4f54-80ba-ddd44225af28",
+                            Id = new Guid("65284b5e-961c-4c40-8a8b-ee83cdc851ae"),
+                            ConcurrencyStamp = "de811981-6806-41a9-947f-b3147d52b575",
                             Name = "Supervisor",
                             NormalizedName = "SUPERVISOR"
                         });
@@ -492,17 +487,6 @@ namespace SSocial.Migrations
                         .IsRequired();
 
                     b.Navigation("Mechanic");
-                });
-
-            modelBuilder.Entity("Entities.Models.Machine", b =>
-                {
-                    b.HasOne("Entities.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Entities.Models.Record", b =>
