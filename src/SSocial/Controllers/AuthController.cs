@@ -101,10 +101,8 @@ namespace SSocial.Controllers
             {
                 return new BadRequestObjectResult(new { Message = "Usuario y/o contrasena incorrecto" });
             }
-            var role = await _userManager.GetRolesAsync(identityUser);
-            // identityUser.Role = role[0];
 
-            var token = GenerateTokens(identityUser);
+            var token = await GenerateTokens(identityUser);
             return Ok(new { Token = token, Message = "Success" });
         }
 
@@ -203,10 +201,10 @@ namespace SSocial.Controllers
 
         }
 
-        private string GenerateTokens(User identityUser)
+        private async Task<string> GenerateTokens(User identityUser)
         {
             // Generate access token
-            var accessToken = GenerateAccessToken(identityUser);
+            var accessToken = await GenerateAccessToken(identityUser);
 
             // Generate refresh token and set it to cookie
             if (HttpContext.Connection.RemoteIpAddress != null)
@@ -229,12 +227,14 @@ namespace SSocial.Controllers
             }
 
             _dbContext.Update(identityUser);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return accessToken;
         }
 
-        private string GenerateAccessToken(User identityUser)
+        private async Task<string> GenerateAccessToken(User identityUser)
         {
+            var getRole = await _userManager.GetRolesAsync(identityUser);
+            var role = getRole[0];
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtBearerTokenSettings.SecretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -242,8 +242,8 @@ namespace SSocial.Controllers
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Email, identityUser.Email),
-                    
-                    // new Claim(ClaimTypes.Role, identityUser.Role)
+                    new Claim(ClaimTypes.Role, role),
+                    new Claim(ClaimTypes.Actor, identityUser.Id.ToString())
                 }),
 
                 Expires = DateTime.UtcNow.AddSeconds(_jwtBearerTokenSettings.ExpiryTimeInSeconds),
