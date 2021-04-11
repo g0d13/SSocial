@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace SSocial.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,7 +55,8 @@ namespace SSocial.Migrations
                 {
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
-                    Details = table.Column<string>(type: "text", nullable: true)
+                    Details = table.Column<string>(type: "text", nullable: true),
+                    LogId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -368,9 +369,9 @@ namespace SSocial.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("44eb59c9-20a9-477d-9b5a-27c2e560e4f3"), "3fd7498b-71ed-4936-aacd-e90286d404aa", "Admin", "ADMIN" },
-                    { new Guid("49dbf794-f144-4ab0-81e0-1e83e97407ae"), "6a610eec-af04-46ec-b72b-089e3722b129", "Mechanic", "MECHANIC" },
-                    { new Guid("65284b5e-961c-4c40-8a8b-ee83cdc851ae"), "de811981-6806-41a9-947f-b3147d52b575", "Supervisor", "SUPERVISOR" }
+                    { new Guid("dbb78ec7-4437-469b-8353-c51a4d9e261f"), "650d412b-83f5-4387-b03a-559a2fd131db", "Admin", "ADMIN" },
+                    { new Guid("761e2c93-0d74-417f-a7a6-7e86353d56b7"), "fbdf029e-dfd7-4a3e-98de-edb54d54d162", "Mechanic", "MECHANIC" },
+                    { new Guid("f2e8d0c5-abb1-4a36-bafa-06349e40ec35"), "d106cc4c-7405-4027-b3fc-d8c5556c8965", "Supervisor", "SUPERVISOR" }
                 });
 
             migrationBuilder.CreateIndex(
