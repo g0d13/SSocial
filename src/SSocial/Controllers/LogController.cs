@@ -58,40 +58,29 @@ namespace SSocial.Controllers
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLog(Guid id, LogForCreationDto log)
+        public async Task<ActionResult<LogDto>> PutLog(Guid id, LogForCreationDto log)
         {
-            if (id != log.LogId)
-            {
-                return BadRequest();
-            }
-
-            var categories = log.Categories.Select(c => _context.Categories.Find(c)).ToList();
-            var newLog = new Log()
-            {
-                LogId = log.LogId,
-                Name = log.Name,
-                Mechanic = await _context.Users.FindAsync(log.Mechanic),
-                Categories =  categories
-            };
-
-            _context.Entry(newLog).State = EntityState.Modified;
-            _context.Logs.Update(newLog);
+            var logForUpdate = _context.Logs
+                .Include(c=> c.Categories)
+                .FirstOrDefault(l => l.LogId == log.LogId);
             
-            try
+            logForUpdate?.Categories.Clear();
+            
+            var categories = 
+                log.Categories.Select(c => _context.Categories.FirstOrDefault(x => x.CategoryId == c)).ToList();
+            categories.ForEach(i =>
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LogExists(id))
-                {
-                    return NotFound();
-                }
-
-                throw;
-            }
-
-            return NoContent();
+                logForUpdate?.Categories.Add(i);
+            });
+            
+            logForUpdate!.MechanicId = log.Mechanic;
+            logForUpdate!.Name = log.Name;
+            logForUpdate!.Details = log.Details;
+            
+            _context.Update(logForUpdate!);
+            await _context.SaveChangesAsync();
+            
+            return _mapper.Map<LogDto>(logForUpdate);
         }
 
         // POST: api/Log
