@@ -43,6 +43,9 @@ namespace SSocial.Migrations
                     b.Property<string>("Details")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("LogId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -94,6 +97,42 @@ namespace SSocial.Migrations
                     b.HasKey("MachineId");
 
                     b.ToTable("Machines");
+                });
+
+            modelBuilder.Entity("Entities.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("FromId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Read")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Seen")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Send")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ToId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromId");
+
+                    b.HasIndex("ToId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Entities.Models.Record", b =>
@@ -270,22 +309,22 @@ namespace SSocial.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("44eb59c9-20a9-477d-9b5a-27c2e560e4f3"),
-                            ConcurrencyStamp = "3fd7498b-71ed-4936-aacd-e90286d404aa",
+                            Id = new Guid("aecf1ffa-500d-44cd-bb39-306c6a5bc0df"),
+                            ConcurrencyStamp = "ac87aa03-c236-45f1-a838-c4d6562c0adc",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("49dbf794-f144-4ab0-81e0-1e83e97407ae"),
-                            ConcurrencyStamp = "6a610eec-af04-46ec-b72b-089e3722b129",
+                            Id = new Guid("65d6a87b-5b70-418c-9573-42facdd1a337"),
+                            ConcurrencyStamp = "34e929d4-69a0-4450-a707-978b5d884e6a",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = new Guid("65284b5e-961c-4c40-8a8b-ee83cdc851ae"),
-                            ConcurrencyStamp = "de811981-6806-41a9-947f-b3147d52b575",
+                            Id = new Guid("b60a004b-9f9e-49cf-bb49-1570bec95e1c"),
+                            ConcurrencyStamp = "766200fa-65b0-488e-ad5d-275b4ebbcb02",
                             Name = "Supervisor",
                             NormalizedName = "SUPERVISOR"
                         });
@@ -487,6 +526,25 @@ namespace SSocial.Migrations
                         .IsRequired();
 
                     b.Navigation("Mechanic");
+                });
+
+            modelBuilder.Entity("Entities.Models.Notification", b =>
+                {
+                    b.HasOne("Entities.Models.User", "From")
+                        .WithMany()
+                        .HasForeignKey("FromId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entities.Models.User", "To")
+                        .WithMany()
+                        .HasForeignKey("ToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("From");
+
+                    b.Navigation("To");
                 });
 
             modelBuilder.Entity("Entities.Models.Record", b =>

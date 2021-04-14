@@ -205,6 +205,36 @@ namespace SSocial.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Content = table.Column<string>(type: "text", nullable: true),
+                    Seen = table.Column<bool>(type: "boolean", nullable: false),
+                    Send = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Read = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    FromId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ToId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_FromId",
+                        column: x => x.FromId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_ToId",
+                        column: x => x.ToId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshToken",
                 columns: table => new
                 {
@@ -369,9 +399,9 @@ namespace SSocial.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("dbb78ec7-4437-469b-8353-c51a4d9e261f"), "650d412b-83f5-4387-b03a-559a2fd131db", "Admin", "ADMIN" },
-                    { new Guid("761e2c93-0d74-417f-a7a6-7e86353d56b7"), "fbdf029e-dfd7-4a3e-98de-edb54d54d162", "Mechanic", "MECHANIC" },
-                    { new Guid("f2e8d0c5-abb1-4a36-bafa-06349e40ec35"), "d106cc4c-7405-4027-b3fc-d8c5556c8965", "Supervisor", "SUPERVISOR" }
+                    { new Guid("aecf1ffa-500d-44cd-bb39-306c6a5bc0df"), "ac87aa03-c236-45f1-a838-c4d6562c0adc", "Admin", "ADMIN" },
+                    { new Guid("65d6a87b-5b70-418c-9573-42facdd1a337"), "34e929d4-69a0-4450-a707-978b5d884e6a", "Mechanic", "MECHANIC" },
+                    { new Guid("b60a004b-9f9e-49cf-bb49-1570bec95e1c"), "766200fa-65b0-488e-ad5d-275b4ebbcb02", "Supervisor", "SUPERVISOR" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -420,6 +450,16 @@ namespace SSocial.Migrations
                 name: "IX_Logs_MechanicId",
                 table: "Logs",
                 column: "MechanicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_FromId",
+                table: "Notifications",
+                column: "FromId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_ToId",
+                table: "Notifications",
+                column: "ToId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Records_LogId",
@@ -496,6 +536,9 @@ namespace SSocial.Migrations
 
             migrationBuilder.DropTable(
                 name: "CategoryLog");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "Records");

@@ -28,5 +28,7 @@ namespace Entities
     public DbSet<Request> Request { get; set; }
         
     public DbSet<Repair> Repair { get; set; }
+    
+    public DbSet<Notification> Notifications { get; set; }
     }
 }
