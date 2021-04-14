@@ -6,9 +6,10 @@ namespace SSocial.Hubs
 {
     public class UserConnectionManager : IUserConnectionManager
     {
+        // userId connections
         private static readonly Dictionary<string, List<string>> UserConnectionMap = new();
-        
-        public void KeepUserConnection(string userId, string connectionId)
+     
+        public void AddNewConnection(string userId, string connectionId)
         {
             lock (UserConnectionMap)
             {
@@ -29,6 +30,10 @@ namespace SSocial.Hubs
                     .Where(userId => UserConnectionMap[userId].Contains(connectionId)))
                 {
                     UserConnectionMap[userId].Remove(connectionId);
+                    if (UserConnectionMap[userId].Count == 0)
+                    {
+                        UserConnectionMap.Remove(userId);
+                    }
                     break;
                 }
             }
