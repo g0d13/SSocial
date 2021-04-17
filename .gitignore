@@ -340,3 +340,4 @@ ASALocalRun/
 healthchecksdb
 
 run.sh
+test.ts
