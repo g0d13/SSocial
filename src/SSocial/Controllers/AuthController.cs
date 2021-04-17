@@ -16,10 +16,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SSocial.Hubs;
 
 namespace SSocial.Controllers
 {
@@ -32,6 +34,8 @@ namespace SSocial.Controllers
         private readonly UserManager<User> _userManager;
         private readonly RepositoryContext _dbContext;
         private readonly RoleManager<Role> _roleManager;
+        private readonly IHubContext<NotifHub> _hubContext;
+        private readonly IUserConnectionManager _userConnectionManager;
         private readonly ILogger _logger;
         
         private readonly IMapper _mapper;
@@ -40,15 +44,19 @@ namespace SSocial.Controllers
             UserManager<User> userManager, 
             RepositoryContext dbContext,
             ILogger<AuthController> logger,
+            IHubContext<NotifHub> hubContext,
             RoleManager<Role> roleManager,
+            IUserConnectionManager userConnectionManager,
             IMapper mapper)
         {
             _jwtBearerTokenSettings = jwtTokenOptions.Value;
             _userManager = userManager;
             _dbContext = dbContext;
+            _userConnectionManager = userConnectionManager;
             _roleManager = roleManager;
             _mapper = mapper;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -62,7 +70,6 @@ namespace SSocial.Controllers
             }
 
             var identityUser = _mapper.Map<User>(registerUserDto);
-
             var result = await _userManager.CreateAsync(identityUser, registerUserDto.Password);
             if (!result.Succeeded)
             {
@@ -85,7 +92,10 @@ namespace SSocial.Controllers
             var user = await _userManager.FindByIdAsync(identityUser.Id.ToString());
             await _userManager.AddToRoleAsync(user, role.Name);
 
-            return Ok(new { Message = "User Registration Successful" });
+            var outputUser = _mapper.Map<UserDetails>(user);
+            outputUser.Role = role.Name;
+            
+            return Ok(outputUser);
         }
 
         [HttpPost]
@@ -101,9 +111,12 @@ namespace SSocial.Controllers
             {
                 return new BadRequestObjectResult(new { Message = "Usuario y/o contrasena incorrecto" });
             }
+            
+            var getRole = await _userManager.GetRolesAsync(identityUser);
 
             var token = await GenerateTokens(identityUser);
-            return Ok(new { Token = token, Message = "Success" });
+
+            return Ok(new { Token = token, Role=getRole[0], Id=identityUser.Id, FirstName = identityUser.FirstName, Email = identityUser.Email  });
         }
 
         [AllowAnonymous]
@@ -241,9 +254,9 @@ namespace SSocial.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
+                    new Claim(ClaimTypes.Actor, identityUser.Id.ToString()),
                     new Claim(ClaimTypes.Email, identityUser.Email),
-                    new Claim(ClaimTypes.Role, role),
-                    new Claim(ClaimTypes.Actor, identityUser.Id.ToString())
+                    new Claim(ClaimTypes.Role, role)
                 }),
 
                 Expires = DateTime.UtcNow.AddSeconds(_jwtBearerTokenSettings.ExpiryTimeInSeconds),
