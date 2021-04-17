@@ -21,8 +21,6 @@ namespace Entities.DataTransferObjects
     }
     public class LogForCreationDto : LogBaseDto
     {
-        public Guid LogId { get; set; }
-
         public ICollection<Guid> Categories { get; set; }
         public Guid Mechanic { get; set; }
     }

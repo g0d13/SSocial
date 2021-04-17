@@ -6,7 +6,7 @@ namespace Entities.DataTransferObjects
 {
     public class RepairDto
     {
-        public Guid RepairId { get; set; }
+        public Guid Id { get; set; }
         
         public bool IsFixed { get; set; }
         
