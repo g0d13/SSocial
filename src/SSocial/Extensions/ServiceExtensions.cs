@@ -19,7 +19,7 @@ namespace SSocial.Extensions
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000").AllowCredentials().AllowAnyHeader();
+                    builder.WithOrigins("http://localhost:3000", "http://192.168.8.113:3000").AllowCredentials().AllowAnyHeader().AllowAnyMethod();
                 });
             });
         public static void ConfigureDatabaseContext(this IServiceCollection services,
