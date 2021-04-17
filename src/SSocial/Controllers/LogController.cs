@@ -58,6 +58,7 @@ namespace SSocial.Controllers
         }
         
         [HttpPut("{id}")]
+        // if works don't modify
         public async Task<ActionResult<LogDto>> PutLog(Guid id, LogForCreationDto log)
         {
             var logForUpdate = _context.Logs
@@ -85,13 +86,13 @@ namespace SSocial.Controllers
 
         // POST: api/Log
         [HttpPost]
-        public async Task<ActionResult<LogForCreationDto>> PostLog(LogForCreationDto createLog)
+        public async Task<ActionResult<LogDto>> PostLog(LogForCreationDto createLog)
         {
             var user = await _userManager.FindByIdAsync(createLog.Mechanic.ToString());
             var newLog = new Log
             {
                 Name = createLog.Name,
-                Mechanic = user,
+                MechanicId = createLog.Mechanic,
                 Details = createLog.Details,
                 Categories = createLog.Categories.Select(c => _context.Categories.Find(c)).ToList()
             };
@@ -99,7 +100,8 @@ namespace SSocial.Controllers
             await _context.SaveChangesAsync();
             
             createLog.LogId = newLog.LogId;
-            return CreatedAtAction("GetLog", new { id = newLog.LogId }, createLog);
+            var outputLog = _mapper.Map<LogDto>(newLog);
+            return CreatedAtAction("GetLog", new { id = createLog.LogId }, outputLog);
         }
  
         // DELETE: api/Log/5
