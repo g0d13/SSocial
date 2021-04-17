@@ -34,7 +34,7 @@ namespace SSocial.Controllers
                 ArrivalTime = e.ArrivalTime,
                 DepartureTime = e.DepartureTime,
                 IsFixed = e.IsFixed,
-                RepairId = e.RepairId,
+                Id = e.RepairId,
                 Log = e.LogId
             }).ToListAsync();
         }
@@ -58,7 +58,7 @@ namespace SSocial.Controllers
                 ArrivalTime = repair.ArrivalTime,
                 DepartureTime = repair.DepartureTime,
                 IsFixed = repair.IsFixed,
-                RepairId = repair.RepairId
+                Id = repair.RepairId
             };
         }
 
@@ -67,7 +67,7 @@ namespace SSocial.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRepair(Guid id, RepairDto repairDto)
         {
-            if (id != repairDto.RepairId)
+            if (id != repairDto.Id)
             {
                 return BadRequest();
             }
@@ -81,7 +81,7 @@ namespace SSocial.Controllers
                 ArrivalTime = repairDto.ArrivalTime,
                 DepartureTime = repairDto.DepartureTime,
                 IsFixed = repairDto.IsFixed,
-                RepairId = repairDto.RepairId
+                RepairId = repairDto.Id
             };
 
             _context.Entry(repair).State = EntityState.Modified;
@@ -117,7 +117,7 @@ namespace SSocial.Controllers
                 ArrivalTime = repairDto.ArrivalTime,
                 DepartureTime = repairDto.DepartureTime,
                 IsFixed = repairDto.IsFixed,
-                RepairId = repairDto.RepairId,
+                RepairId = repairDto.Id,
                 Log = await _context.Logs.FindAsync(repairDto.Log),
                 Mechanic = await _context.Users.FindAsync(repairDto.Mechanic),
                 

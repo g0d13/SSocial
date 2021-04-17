@@ -8,7 +8,6 @@ using AutoMapper.QueryableExtensions;
 using Entities;
 using Entities.DataTransferObjects;
 using Entities.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -24,40 +23,30 @@ namespace SSocial.Controllers
         private readonly RepositoryContext _context;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotifHub> _hubContext;
+        private readonly IUserConnectionManager _userConnectionManager;
 
         public RequestController(
-            RepositoryContext context, IMapper mapper, IHubContext<NotifHub> hubContext)
+            RepositoryContext context, IMapper mapper,IUserConnectionManager userConnectionManager, IHubContext<NotifHub> hubContext)
         {
             _context = context;
             _mapper = mapper;
             _hubContext = hubContext;
+            _userConnectionManager = userConnectionManager;
         }
 
         // GET: api/Request
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RequestDto>>> GetRequest()
         {
-            var requestList = await _context.Request
-                .AsQueryable()
-                .AsSplitQuery()
-                .Select(r => new RequestDto
-                {
-                    Description = r.Description,
-                    Log = r.LogId,
-                    Machine = r.MachineId,
-                    Priority = r.Priority,
-                    Supervisor = r.SupervisorId,
-                    CreatedAt = r.CreatedAt,
-                    ProblemCode = r.ProblemCode,
-                    RequestId = r.RequestId
-                }).ToListAsync();
+            var requestList = await _context.Request.AsQueryable().ProjectTo<RequestDto>(_mapper.ConfigurationProvider).ToListAsync();
             return requestList;
         }
 
         [HttpGet("test")]
         public ActionResult SendNumber()
         {
-            _hubContext.Clients.All.SendCoreAsync("Metodo", new []{"Message"});
+
+            var onlineUsers = _userConnectionManager.GetOnlineUsers();
             return Ok(new {Message = "Hola"});
         }
 
@@ -65,44 +54,38 @@ namespace SSocial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<RequestDto>> GetRequest(Guid id)
         {
-            var request = await _context.Request.FindAsync(id);
-
-            if (request == null)
+            var categoryMapper = await _context.Request
+                .Where(e => e.RequestId == id)
+                .ProjectTo<RequestDto>(_mapper.ConfigurationProvider)
+                .FirstAsync();
+            
+            if (categoryMapper == null)
             {
                 return NotFound();
             }
 
-            return new RequestDto
-            {
-                Description = request.Description,
-                Priority = request.Priority,
-                //TODO: finzalize
-                // Supervisor = request.Supervisor.Id,
-                CreatedAt = request.CreatedAt,
-                RequestId = request.RequestId
-            };
+            return categoryMapper;
         }
 
         // PUT: api/Request/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRequest(Guid id, RequestDto request)
+        public async Task<IActionResult> PutRequest(Guid id, RequestForCreationDto requestForCreation)
         {
-            if (id != request.RequestId)
+            if (id != requestForCreation.Id)
             {
                 return BadRequest();
             }
 
-            var savedRequest = _mapper.Map<Request>(request);
+            var savedRequest = _mapper.Map<Request>(requestForCreation);
 
             var saveRequest = new Request
             {
-                Description = request.Description,
-                Priority = request.Priority,
-                //TODO: finalize
-                // Supervisor = await _context.Users.FindAsync(request.Supervisor),
-                CreatedAt = request.CreatedAt,
-                RequestId = request.RequestId
+                Description = requestForCreation.Description,
+                Priority = requestForCreation.Priority,
+                SupervisorId = requestForCreation.Supervisor,
+                CreatedAt = requestForCreation.CreatedAt,
+                RequestId = requestForCreation.Id
             };
 
             _context.Entry(saveRequest).State = EntityState.Modified;
@@ -124,9 +107,8 @@ namespace SSocial.Controllers
         }
 
         // POST: api/Request
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<RequestDto>> PostRequest(RequestDto request)
+        public async Task<ActionResult<RequestForCreationDto>> PostRequest(RequestForCreationDto requestForCreation)
         {
             var supervisor = HttpContext.User.FindFirst(ClaimTypes.Actor)?.Value;
             if (supervisor == null)
@@ -136,20 +118,27 @@ namespace SSocial.Controllers
 
             var savedRequest = new Request
             {
-                Description = request.Description,
-                ProblemCode = request.ProblemCode,
-                Log = await _context.Logs.FindAsync(request.Log),
-                Machine = await _context.Machines.FindAsync(request.Machine),
+                Description = requestForCreation.Description,
+                ProblemCode = requestForCreation.ProblemCode,
+                Log = await _context.Logs.FindAsync(requestForCreation.Log),
+                Machine = await _context.Machines.FindAsync(requestForCreation.Machine),
                 SupervisorId = Guid.Parse(supervisor),
                 CreatedAt =  DateTime.Now,
-                Priority = request.Priority,
+                Priority = requestForCreation.Priority,
             };
             
             await _context.Request.AddAsync(savedRequest);
             await _context.SaveChangesAsync();
 
-            request.RequestId = savedRequest.RequestId;
-            return CreatedAtAction("GetRequest", new { id = savedRequest.RequestId }, request);
+            var userToNotify = savedRequest.Log.MechanicId;
+            var makeNotif = _userConnectionManager.GetUserConnections(userToNotify.ToString());
+            foreach (var connection in makeNotif.Where(connection => !string.IsNullOrWhiteSpace(connection)))
+            {
+                await _hubContext.Clients.Client(connection).SendAsync("ReceiveNotification", savedRequest.RequestId);
+            }
+            
+            requestForCreation.Id = savedRequest.RequestId;
+            return CreatedAtAction("GetRequest", new { id = savedRequest.RequestId }, requestForCreation);
         }
 
         // DELETE: api/Request/5

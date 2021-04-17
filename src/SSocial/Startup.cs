@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,10 +29,12 @@ namespace SSocial
             services.ConfigureCors();
             services.ConfigureDatabaseContext(Configuration);
             services.ConfigureIdentity();
-
             services.AddControllers();
+            services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
+            
 
             services.ConfigureJWT(Configuration);
+            services.AddSignalR();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SSocial", Version = "v1"});
@@ -44,8 +47,8 @@ namespace SSocial
                     Type = SecuritySchemeType.ApiKey
                 });
             });
-            services.AddSignalR();
         }
+        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -59,6 +62,8 @@ namespace SSocial
             
             app.ConfigureExceptionHandler();
             
+            
+            
             app.UseCors();
 
             app.UseHttpsRedirection();
@@ -70,7 +75,7 @@ namespace SSocial
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<NotifHub>("/notify");
+                endpoints.MapHub<NotifHub>("/NotificationHub");
             });
             
         }

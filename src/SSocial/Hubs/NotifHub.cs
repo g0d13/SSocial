@@ -16,11 +16,12 @@ namespace SSocial.Hubs
             _userConnectionManager = userConnectionManager;
         }
         
-        public async Task OnConnectionReady(string userId)
+        public Task OnConnectionReady(string userId)
         {
             var connectionId = Context.ConnectionId;
             Console.WriteLine("Connected: " + userId + " with connectionId " + connectionId);
             _userConnectionManager.AddNewConnection(userId, connectionId);
+            return Clients.Caller.SendAsync("OnConnectionReady", userId +"userId");
         }
 
         //Called when a connection with the hub is terminated.
