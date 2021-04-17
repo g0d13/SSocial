@@ -11,7 +11,7 @@ namespace Entities.Models
 
         public string Details { get; set; }
         
-
+        public Guid LogId { get; set; }
         public ICollection<Log> Logs { get; set; }
         
     }
