@@ -8,6 +8,7 @@ namespace SSocial.Mappings
 {
     public class MappingProfile : Profile
     {
+    
         public MappingProfile()
         {
             // Origin destiny
